@@ -1,0 +1,62 @@
+{
+  "summary": "First full run on the PA Super Admin Panel, covering backend and frontend. Backend: 50 pytest cases in /app/backend/tests/test_pa_admin_api.py; 47 pass and 3 fail on real bugs: an audit-log seq race that returns 500 under concurrent writes, a 500 on a non-numeric page param, and coupon PATCH skipping validation. Frontend: Playwright checked every flow in the request: login/error/logout, 29 KPIs and range/custom dates, owners list (search, filter, sort, pagination, xlsx/csv/pdf export), owner/tenant/property/agreement profiles, edit/status/remark/archive with required reason, archive and restore, Aadhaar mask/reveal (Super Admin only, Read-Only sees no reveal button), agreement new version + per-version PDF view/download + verify, finance approve/reject/refund (over-refund blocked)/receipt/manual payment (duplicate txn_ref gives 409 toast), subscriptions extend/cancel, coupons create/validate/edit/toggle/usage, complaint sheet (status/assign/escalate/remark/close/reopen), leaving (settlement refund = deposit - deductions, approve, complete), banners (create/edit/reorder/toggle, public API filters by audience), notifications retry, reports downloads, admins (create/edit role/reset pwd/deactivate), roles matrix save, finance@pa.com sidebar limited to 11 sections and 403s on forbidden APIs, audit detail and chain verify, settings fee save (version increments, history) + masked gateway secret, change password (admin password restored to Admin@123), global search incl. archived. One HIGH functional bug: admins without 'settings' permission cannot reach Change Password.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "core.audit() - all mutating endpoints", "issue": "Race condition in the audit hash chain. audit() reads the last seq, then inserts seq+1. The unique index on seq makes concurrent requests throw DuplicateKeyError and return 500. The business change has already been committed by then, so the action is persisted WITHOUT an audit entry. Reproduced with 8 parallel POST /api/data/owners/{id}/remarks: [200,200,200,200,500,...]. Backend log: E11000 duplicate key ... audit_logs index: seq_1.", "priority": "HIGH"}
+    ],
+    "minor": [
+      {"endpoint": "POST /api/auth/login", "issue": "Brute-force lockout can be bypassed. The identifier uses the first X-Forwarded-For value, which the client controls. 7 failures sent with rotating X-Forwarded-For headers all returned 401 and never 429. Key the lockout on email alone, or on the trusted rightmost proxy IP."},
+      {"endpoint": "GET /api/data/{entity}?page=abc", "issue": "int() on page/page_size is not validated, so a non-numeric value returns 500 (ValueError). Should be 400/422."},
+      {"endpoint": "PATCH /api/data/coupons/{id}", "issue": "Generic edit skips the coupon create rules. discount_type=percent with value=500 is accepted (200). No end_date >= start_date or value > 0 checks either."},
+      {"endpoint": "POST /api/coupons", "issue": "No check that end_date >= start_date. Fixed value <= 0 is accepted."},
+      {"endpoint": "POST /api/payments/{id}/refund", "issue": "No optimistic concurrency, unlike approve/reject. Concurrent refunds can over-refund. Filter on status and refunded_amount in update_one."},
+      {"endpoint": "PATCH /api/data/admins/{id}", "issue": "An admin can change their own role or the Super Admin's role. Any role granted admins:edit could promote itself to Super Admin. Block self-role edits and edits to the locked role."},
+      {"endpoint": "POST /api/leaving/{id}/settlement", "issue": "deposit is taken from client input and not checked against the tenant/request deposit. The UI let me settle a ₹15,000-deposit request using deposit=10,000."},
+      {"endpoint": "POST /api/complaints/{id}/action reopen", "issue": "close_reason/closed_at are not cleared on reopen, so a stale 'Close reason' shows on reopened complaints."},
+      {"endpoint": "GET /api/search", "issue": "Hard limit of 10 results per category with no pagination or total count."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Change password (profile menu -> /settings?tab=password)", "issue": "The Settings route is wrapped in <Perm m='settings'>. Finance, Owner Support and other non-settings admins land on 'You do not have permission', so they cannot change their own password even though POST /api/auth/change-password allows any authenticated admin.", "selector": "[data-testid='menu-change-password']", "priority": "HIGH"},
+      {"component": "Finance reject toast", "issue": "Toast said 'Payment rejectd'. FIXED by testing agent in Finance.jsx.", "selector": "[data-testid^='reject-payment-']", "priority": "LOW"},
+      {"component": "Settings page", "issue": "The 'Save settings' button stays visible on the Change password and History tabs, which is confusing.", "selector": "[data-testid='save-settings-button']", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard / Finance KPI cards", "issues": ["Currency shows 1 decimal ('₹7,272.5', '₹29,54,509.8'). Use 0 or 2 fixed decimals.", "The long value '₹29,54,509.8' touches the right edge of its card."]},
+      {"screen": "All DataTables, banner/coupon dialogs, dashboard custom range", "issues": ["Uses the native browser <input type=date> (mm/dd/yyyy) instead of the shadcn Calendar/Popover date picker, which is inconsistent with the rest of the UI."]},
+      {"screen": "Banners list", "issues": ["Banners without button text render 'Button \"\" →'.", "A broken image_url shows the alt text with no fallback placeholder."]},
+      {"screen": "Complaints toasts", "issues": ["Generic wording: 'Complaint status done', 'Complaint escalate done'."]},
+      {"screen": "Finance manual payment dialog", "issues": ["Owner ID is free text with no owner lookup/autocomplete."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_pa_admin_api.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "HIGH: Make audit() concurrency-safe, e.g. get seq from the atomic counter next_id/find_one_and_update and retry on DuplicateKeyError, or serialize with an asyncio.Lock for a single worker. Ideally write the audit entry before or atomically with the mutation so no action goes unaudited.",
+    "HIGH: Let every admin reach Change Password: give it its own route outside <Perm m='settings'> (e.g. /account/password), or render only that tab without the settings permission.",
+    "Stop trusting the client-supplied X-Forwarded-For first hop for the brute-force identifier.",
+    "Validate page/page_size as ints (return 400 on bad input) in list_entity.",
+    "Apply coupon validation (percent 1-100, value > 0, end >= start) on PATCH /data/coupons too.",
+    "Prevent self-role changes and edits to the Super Admin role via PATCH /data/admins.",
+    "Add a concurrency guard on refund; clear close_reason on complaint reopen; default settlement deposit from the record.",
+    "Design: fix currency decimals, replace native date inputs with shadcn Calendar, hide the empty Button text in banners."
+  ],
+  "critical_code_review_comments": [
+    "core.audit(): read-then-insert seq is not atomic. With a unique index this gives a 500 after the business write has committed, so the audit trail has gaps. The 'every action audited' guarantee breaks under load.",
+    "Mutations and audit writes are not transactional. Any audit failure leaves unaudited changes.",
+    "The login lockout identifier uses the spoofable X-Forwarded-For[0]; current_admin also logs the spoofable IP into audit entries.",
+    "The generic PATCH /data/{entity} bypasses entity-specific business validation (coupons, admins role, banners audience, agreements dates).",
+    "Auth uses a Bearer token in localStorage (pa_token), not httpOnly cookies, so it is XSS-exposed. This was accepted per the request; CORS allow_credentials=False with '*' is consistent with it.",
+    "Playbook checks: bcrypt $2b$ hashes OK; lockout after 5 fails OK (429 on the 6th); seed creates the admin only if missing (seed.py:73) OK; httpOnly cookies not used (Bearer design).",
+    "Positive: _id and secrets (aadhaar_enc, password_hash, gateway_secret_enc) are stripped by clean(); the audit hash chain verifies; no hard-delete endpoints; audit logs are not editable via generic PATCH/status (400)."
+  ],
+  "updated_files": ["/app/backend/tests/test_pa_admin_api.py", "/app/frontend/src/pages/Finance.jsx (reject toast typo fix)"],
+  "success_rate": {"backend": "94% (47/50; 3 failures are real bugs)", "frontend": "~95% (all requested flows work; 1 HIGH permission/routing bug for change password)"},
+  "test_credentials": "From /app/memory/test_credentials.md: admin@pa.com/Admin@123 (restored after the change-password test), staff accounts Staff@123 (ownersupport password changed and restored).",
+  "seed_data_creation": "Tests created TEST_/UI-prefixed data: TEST coupons, banners (deactivated), TEST_TXN_*/UI_TXN_DUP_1 manual payments, admins test_*@pa.com / uiadmin*@pa.com (deactivated). Several seeded records changed state: approved/rejected payments, refunded PAY-10136 partially, completed leaving LVR-10015, verified AGR-10089 (new versions added), reopened complaint CMP-10005, cancelled 2 subscriptions, owner city edits reverted. Settings version bumped (fees reverted to 99; gateway secret now set, last4 9876).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run: cd /app/backend && REACT_APP_BACKEND_URL=<from frontend/.env> python -m pytest tests/test_pa_admin_api.py (pytest.ini runs xdist). Expected failures until fixed: test_invalid_page_param, test_coupon_edit_bypasses_validation, test_concurrent_audit_writes. Key testids: kpi-<key>-value, <entity>-search-input/-filter-<key>/-sort-<key>/-export-button/-export-{fmt}, form-<name>-input/select, form-reason-input, form-submit-button, tab-<key> (tenant Aadhaar on tab-identity, agreement versions on tab-versions). The finance table testid prefix is 'payments'. Retest: change password as finance@pa.com, and parallel mutations not returning 500.",
+  "rca of the issue": "Audit 500: core.audit() does find_one(sort seq desc), then insert_one(seq+1). Two concurrent requests read the same last seq and the second insert violates the unique index seq_1 (DuplicateKeyError). It is raised after db.<entity>.update_one has already run, so the user gets a 500 while the change persists unaudited. Repro: 8 parallel POST /api/data/owners/OWN-x/remarks. Mitigation: atomic counter for seq plus a retry loop that recomputes prev_hash, or an asyncio.Lock around audit() (single uvicorn worker). Change-password RBAC: App.js wraps the 'settings' route in <Perm m='settings'>, and the menu item navigates to /settings?tab=password, which non-settings roles are blocked from."
+}

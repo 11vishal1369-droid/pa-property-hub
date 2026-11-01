@@ -1,0 +1,190 @@
+{
+  "project_name": "PA Property Management Platform - Admin Panel",
+  "app_type": "dashboard",
+  "theme": {
+    "default_mode": "light",
+    "toggle_supported": true,
+    "brand_identity": "PA Property Management - Modern Professional High-Density Command Center",
+    "palette": {
+      "primary": {
+        "main": "#1E3A8A",
+        "dark": "#0F172A",
+        "light": "#3B82F6",
+        "label": "Deep PA Cobalt Blue",
+        "hsl": "224 76% 33%"
+      },
+      "secondary": {
+        "main": "#EA580C",
+        "dark": "#C2410C",
+        "light": "#F97316",
+        "label": "Kinetic PA Orange",
+        "hsl": "21 90% 48%"
+      },
+      "neutral_background": {
+        "light_base": "#F8FAFC",
+        "light_card": "#FFFFFF",
+        "light_border": "#E2E8F0",
+        "dark_base": "#0B0F17",
+        "dark_card": "#1E293B",
+        "dark_border": "#334155"
+      },
+      "semantic_states": {
+        "success": "#16A34A",
+        "warning": "#D97706",
+        "danger": "#DC2626",
+        "info": "#0284C7",
+        "pending": "#8B5CF6"
+      }
+    },
+    "forbidden_colors": ["#1B93A4", "#7351B7"],
+    "forbidden_fonts": ["Space Grotesk", "Inter (for Main Headings)"]
+  },
+  "typography": {
+    "font_family_heading": "Manrope, sans-serif",
+    "font_family_body": "IBM Plex Sans, sans-serif",
+    "font_family_mono": "JetBrains Mono, monospace",
+    "hierarchy": {
+      "h1_hero": "text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 md:text-4xl",
+      "h2_section": "text-xl font-semibold tracking-tight text-slate-800 dark:text-slate-100 sm:text-2xl",
+      "h3_card": "text-base font-semibold text-slate-900 dark:text-slate-100",
+      "body_standard": "text-sm text-slate-700 dark:text-slate-300 leading-normal",
+      "body_dense": "text-xs text-slate-600 dark:text-slate-400 leading-tight",
+      "table_header": "text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400",
+      "kpi_value": "text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-50 font-mono"
+    }
+  },
+  "layout_architecture": {
+    "sidebar": {
+      "type": "persistent_collapsible_left_sidebar",
+      "width": "w-64",
+      "collapsed_width": "w-20",
+      "background": "bg-slate-900 text-slate-100 dark:bg-slate-950 dark:border-r dark:border-slate-800",
+      "sections_count": 17,
+      "sections_list": [
+        "Dashboard",
+        "Owners",
+        "Tenants",
+        "Properties",
+        "Agreements",
+        "Payments & Finance",
+        "Subscriptions",
+        "Coupon Management",
+        "Complaints",
+        "Leaving Requests",
+        "Banners",
+        "Notifications",
+        "Reports",
+        "Archived Records",
+        "Admin Users & Permissions",
+        "Audit Logs",
+        "Settings"
+      ]
+    },
+    "header": {
+      "height": "h-16",
+      "style": "sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between",
+      "elements": [
+        "Global Historical Search Bar (Aadhaar/Phone/Agreement ID/Name)",
+        "Date Range Global Context Selector",
+        "Role Badge Pill (Super Admin, Finance Admin, Support, etc.)",
+        "Notifications Bell with Counter Badge",
+        "Admin Profile Dropdown with Quick Password Change & Logout"
+      ]
+    },
+    "grid_strategy": {
+      "kpi_grid": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4 mb-6",
+      "table_grid": "bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden",
+      "bento_dashboard": "grid grid-cols-1 lg:grid-cols-12 gap-6"
+    }
+  },
+  "components_and_patterns": {
+    "kpi_cards": {
+      "count": 29,
+      "pattern": "High-density compact card with 1px border, 12px muted title, 28px mono numeric value, percentage change pill, and secondary contextual detail.",
+      "border_radius": "rounded-lg (max 8px)",
+      "tabular_nums": true
+    },
+    "data_tables": {
+      "density": "compact",
+      "features": [
+        "Column sorting",
+        "Multi-attribute global and column search",
+        "Paginated view with size selector (10/25/50/100)",
+        "Export actions (CSV / Excel / PDF print)",
+        "Row selection for bulk actions",
+        "Masked Aadhaar field with toggle permission preview ('XXXX-XXXX-1234')",
+        "Status badges with semantic color fills (Paid, Pending, Verified, Rejected, Expired)",
+        "Slide-over drawer for detail view instead of full page unload"
+      ]
+    },
+    "dialogs_and_modals": {
+      "rule": "Action approvals (Reject Agreement, Refund Payment, Deactivate Admin, Revoke Coupon) MUST require a mandatory 'Reason for Action' text area before submitting.",
+      "shadcn_component": "Dialog, Alert Dialog, Sheet (Drawer)"
+    },
+    "privacy_security_rules": {
+      "aadhaar_masking": "Aadhaar numbers must display as 'XXXX-XXXX-XXXX-1234'. Show unmask button only for Super Admin role with audit logging trigger.",
+      "no_hard_deletes": "Delete buttons perform Soft Delete only (sets is_archived: true) and log to Audit Logs. Archived records move to Archived Records section."
+    }
+  },
+  "roles_permission_matrix": [
+    "Super Admin (Full System Access, System Config, Admin Management)",
+    "Finance Admin (Payments, Finance Approval, Subscriptions, Coupons, Financial Reports)",
+    "Owner Support (Owners Directory, Property List, Support Tickets, Communications)",
+    "Tenant Support (Tenants Directory, Agreements, Leaving Requests, Complaints)",
+    "Property Management (Properties CRUD, Occupancy Tracking, Inspection Logs)",
+    "Agreement Verification (Verification Queue, Document Review, Approve/Reject)",
+    "Read-Only (View-only analytics and records, no mutation actions)"
+  ],
+  "image_urls": {
+    "properties": [
+      {
+        "url": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Luxury Modern Apartment Complex Exterior",
+        "category": "property_card"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1624204386084-dd8c05e32226?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Modern Urban Highrise Balconies",
+        "category": "property_card"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Suburban Executive Villa Property",
+        "category": "property_card"
+      }
+    ],
+    "avatars": [
+      {
+        "url": "https://images.unsplash.com/photo-1560250097-0b93528c311a?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Male Executive Admin Avatar",
+        "category": "admin_avatar"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Female Finance Director Avatar",
+        "category": "admin_avatar"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=srgb&fm=jpg&q=85",
+        "description": "Female Property Owner Avatar",
+        "category": "owner_avatar"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Use React JS + Tailwind CSS + Shadcn UI primitives located in src/components/ui/ (.jsx / .js files).",
+    "Ensure ALL interactive elements (buttons, inputs, select dropdowns, table rows, tab triggers, modal action buttons, search inputs, pagination controls) include explicit data-testid attributes formatted in kebab-case (e.g. data-testid=\"global-search-input\", data-testid=\"approve-agreement-button\").",
+    "Maintain high APCA contrast. Never use raw white text on pale backgrounds or hover states without explicit text color classes.",
+    "Implement the left sidebar containing all 17 specified sections with active state indicator using PA Blue (#1E3A8A) background and PA Kinetic Orange (#EA580C) accent badge.",
+    "For financial or agreement verification dialogs, always prompt for a mandatory reason text field before execution.",
+    "Do not use transparent background on dropdowns or floating headers; use blur glassmorphism or solid surfaces with proper border separation.",
+    "Include global historical search box in the header capable of matching owner names, tenant details, agreement IDs, and unit numbers."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Layered shadows (ambient + direct) for floating dialogs and popovers.",
+    "Crisp 1px borders using border-slate-200 / dark:border-slate-800.",
+    "Subtle roundness max 8px (rounded-lg / rounded-md).",
+    "Custom scrollbar styling; no content cutoff or unexpected layout shifts.",
+    "Use Sonner for toast notifications on all mutation events (save, approve, reject, soft delete)."
+  ]
+}
