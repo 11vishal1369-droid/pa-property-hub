@@ -165,7 +165,7 @@ class TestAadhaar:
 # --- Agreements
 class TestAgreements:
     def test_versions_pdf_verify(self, admin):
-        a = first(admin, "agreements", status="pending_verification")["items"][0]
+        a = first(admin, "agreements", status="pending_signature")["items"][0]
         aid, v = a["id"], a["current_version"]
         r = admin.post(f"{API}/agreements/{aid}/versions", json={"content": "TEST new terms", "reason": "test"})
         assert r.status_code == 200 and r.json()["version"] == v + 1
@@ -175,10 +175,8 @@ class TestAgreements:
             p = admin.get(f"{API}/agreements/{aid}/pdf", params={"version": ver})
             assert p.status_code == 200 and p.content[:4] == b"%PDF"
         assert admin.get(f"{API}/agreements/{aid}/pdf", params={"version": 99}).status_code == 404
-        assert admin.post(f"{API}/agreements/{aid}/verify", json={"decision": "verified", "reason": ""}).status_code == 400
-        r = admin.post(f"{API}/agreements/{aid}/verify", json={"decision": "rejected", "reason": "TEST reject"})
-        assert r.status_code == 200
-        assert admin.get(f"{API}/data/agreements/{aid}").json()["status"] == "rejected"
+        assert admin.post(f"{API}/agreements/{aid}/verify", json={"decision": "verified", "reason": "x"}).status_code in (404, 405)
+        assert admin.post(f"{API}/data/agreements/{aid}/status", json={"status": "completed", "reason": "x"}).status_code == 400
 
 
 # --- Finance
@@ -287,12 +285,12 @@ class TestBannersNotif:
         bid = r.json()["id"]
         pub = requests.get(f"{API}/public/banners", params={"audience": "owner"}).json()
         assert any(b["id"] == bid for b in pub)
-        assert all(b["audience"] in ("owner", "both") for b in pub)
+        assert all(b["audience"] == "owner" for b in pub)
         assert not any(b["id"] == bid for b in requests.get(f"{API}/public/banners", params={"audience": "tenant"}).json())
-        ids = [b["id"] for b in first(admin, "banners")["items"]]
+        ids = [b["id"] for b in first(admin, "banners", audience="owner")["items"]]
         new = [bid] + [i for i in ids if i != bid]
         assert admin.post(f"{API}/banners/reorder", json={"ids": new, "reason": "t"}).status_code == 200
-        assert first(admin, "banners")["items"][0]["id"] == bid
+        assert first(admin, "banners", audience="owner")["items"][0]["id"] == bid
         assert admin.post(f"{API}/data/banners/{bid}/status", json={"status": "inactive", "reason": "t"}).status_code == 200
         assert not any(b["id"] == bid for b in requests.get(f"{API}/public/banners", params={"audience": "owner"}).json())
 

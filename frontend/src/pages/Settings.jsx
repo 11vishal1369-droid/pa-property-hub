@@ -11,6 +11,7 @@ import { PageHeader, Section } from "../components/Common";
 import { useDialog } from "../components/FormDialog";
 import { useAuth } from "../context/AuthContext";
 import { api, errMsg, fmtDateTime } from "../lib/api";
+import { FirebaseStatus } from "../components/FirebaseStatus";
 
 const Num = ({ l, v, on, id, disabled }) => (
   <div className="space-y-1.5"><Label className="text-xs text-slate-600">{l}</Label>
@@ -59,21 +60,24 @@ export default function SettingsPage() {
   useEffect(load, []);
   const set = (k, v) => setS((x) => ({ ...x, [k]: v }));
   const setIn = (k, sub, v) => setS((x) => ({ ...x, [k]: { ...x[k], [sub]: v } }));
+  const [esKey, setEsKey] = useState("");
+  const [esHook, setEsHook] = useState("");
   const save = () => open({ title: "Save platform settings", description: "Previous settings are versioned in settings history.",
     onSubmit: async (_, reason) => {
       const { key, version, updated_at, updated_by, ...rest } = s;
-      await api.put("/settings", { settings: rest, reason, gateway_secret: secret || null }); setSecret(""); toast.success("Settings saved"); load();
+      await api.put("/settings", { settings: rest, reason, gateway_secret: secret || null, esign_api_key: esKey || null, esign_webhook_secret: esHook || null });
+      setSecret(""); setEsKey(""); setEsHook(""); toast.success("Settings saved"); load();
     } });
   if (!s) return <p className="text-slate-400">Loading…</p>;
   return (
     <div>
       {dialog}
       <PageHeader title="Settings" subtitle={`Version ${s.version} · last updated ${fmtDateTime(s.updated_at)}${s.updated_by ? ` by ${s.updated_by}` : ""}`}>
-        {!ro && ["fees", "renewal", "gateway", "tax"].includes(tab) && <Button onClick={save} className="bg-[#EA580C] hover:bg-[#c2410c]" data-testid="save-settings-button">Save settings</Button>}
+        {!ro && ["fees", "renewal", "gateway", "esign", "tax"].includes(tab) && <Button onClick={save} className="bg-[#EA580C] hover:bg-[#c2410c]" data-testid="save-settings-button">Save settings</Button>}
       </PageHeader>
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="h-auto flex-wrap bg-white shadow-sm ring-1 ring-slate-200">
-          {[["fees", "Fees"], ["renewal", "Renewal & coupons"], ["gateway", "Payment gateway"], ["tax", "Tax & legal"], ["password", "Change password"], ["history", "History"]].map(([k, l]) =>
+          {[["fees", "Fees"], ["renewal", "Renewal & coupons"], ["gateway", "Payment gateway"], ["esign", "e-Sign provider"], ["tax", "Tax & legal"], ["firebase", "Firebase"], ["password", "Change password"], ["history", "History"]].map(([k, l]) =>
             <TabsTrigger key={k} value={k} data-testid={`settings-tab-${k}`}>{l}</TabsTrigger>)}
         </TabsList>
         <TabsContent value="fees" className="mt-4 space-y-4">
@@ -81,8 +85,9 @@ export default function SettingsPage() {
             <Num l="Platform fee (₹)" id="owner-platform-fee" v={s.owner_platform_fee} on={(v) => set("owner_platform_fee", v)} disabled={ro} />
             <Num l="Validity (days)" id="platform-validity-days" v={s.platform_validity_days} on={(v) => set("platform_validity_days", v)} disabled={ro} />
             <Num l="Default agreement fee (₹)" id="agreement-fee-default" v={s.agreement_fee_default} on={(v) => set("agreement_fee_default", v)} disabled={ro} /></div></Section>
-          <Section title="Agreement fee per category"><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {Object.entries(s.agreement_fees).map(([k, v]) => <Num key={k} l={k} id={`agreement-fee-${k.slice(0, 10).replace(/\W/g, "")}`} v={v} on={(x) => setIn("agreement_fees", k, x)} disabled={ro} />)}</div></Section>
+          <Section title="Agreement fee per property category (GST inclusive)"><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="agreement-fee-grid">
+            {Object.entries(s.agreement_fees).map(([k, v], i) => <Num key={k} l={`${k} (₹)`} id={`agreement-fee-${i}`} v={v} on={(x) => setIn("agreement_fees", k, x)} disabled={ro} />)}</div>
+            <p className="mt-3 text-xs text-slate-400">Changes apply to new agreements only; fees already recorded on past agreements and payments stay as they were.</p></Section>
           <Section title="Tenant fees"><div className="grid gap-3 sm:grid-cols-3">
             {Object.entries(s.tenant_fees).map(([k, v]) => <Num key={k} l={`Tenant ${k} fee (₹)`} id={`tenant-fee-${k}`} v={v} on={(x) => setIn("tenant_fees", k, x)} disabled={ro} />)}</div></Section>
         </TabsContent>
@@ -107,8 +112,23 @@ export default function SettingsPage() {
             <Tog l="Gateway enabled" id="gw-enabled" v={s.gateway.enabled} on={(v) => setIn("gateway", "enabled", v)} disabled={ro} /></div>
             <p className="mt-3 text-xs text-slate-400">Secrets are encrypted at rest and never displayed again. Payment success is only recorded from confirmed gateway responses.</p></Section>
         </TabsContent>
+        <TabsContent value="esign" className="mt-4">
+          <Section title="Aadhaar e-Sign provider"><div className="grid gap-3 sm:grid-cols-2">
+            <Txt l="Provider name" id="es-provider" v={s.esign.provider_name} on={(v) => setIn("esign", "provider_name", v)} disabled={ro} />
+            <Txt l="API base URL" id="es-url" v={s.esign.api_base_url} on={(v) => setIn("esign", "api_base_url", v)} disabled={ro} />
+            <Txt l="Client ID" id="es-client" v={s.esign.client_id} on={(v) => setIn("esign", "client_id", v)} disabled={ro} />
+            <div className="space-y-1.5"><Label className="text-xs text-slate-600">Mode</Label>
+              <select disabled={ro} value={s.esign.mode} onChange={(e) => setIn("esign", "mode", e.target.value)} className="h-9 w-full rounded-md border border-slate-200 px-2 text-sm" data-testid="setting-es-mode"><option value="test">Test</option><option value="live">Live</option></select></div>
+            <Txt l={`API key ${s.esign.api_key_set ? `(saved: ${s.esign.api_key_masked})` : "(not set)"}`} id="es-api-key" type="password" v={esKey} on={setEsKey} disabled={ro} />
+            <Txt l={`Webhook secret ${s.esign.webhook_secret_set ? `(saved: ${s.esign.webhook_secret_masked})` : "(not set)"}`} id="es-webhook-secret" type="password" v={esHook} on={setEsHook} disabled={ro} />
+            <div className="space-y-1.5 sm:col-span-2"><Label className="text-xs text-slate-600">Callback URL to give the provider</Label>
+              <Input readOnly value={s.esign.webhook_url} className="tabular text-xs" data-testid="setting-es-callback" /></div>
+            <Tog l="e-Sign enabled" id="es-enabled" v={s.esign.enabled} on={(v) => setIn("esign", "enabled", v)} disabled={ro} /></div>
+            <p className="mt-3 text-xs text-slate-400">The backend sends sign requests to the provider (POST /sign-requests). It only accepts callbacks signed with HMAC-SHA256 using the webhook secret, sent in the X-Esign-Signature header. Agreements complete only when the provider confirms both signatures.</p></Section>
+        </TabsContent>
         <TabsContent value="tax" className="mt-4 grid gap-4 lg:grid-cols-2">
-          <Section title="Tax"><div className="grid gap-3">
+          <Section title="Tax (GST inclusive)"><div className="grid gap-3">
+            <p className="rounded-md bg-blue-50 px-3 py-2 text-xs text-[#1E3A8A]">GST is included in every payment: Base = Total ÷ (1 + GST%), GST = Total − Base. Each payment keeps the rate it was charged at.</p>
             <Tog l="GST enabled" id="gst-enabled" v={s.tax.gst_enabled} on={(v) => setIn("tax", "gst_enabled", v)} disabled={ro} />
             <Num l="GST %" id="gst-percent" v={s.tax.gst_percent} on={(v) => setIn("tax", "gst_percent", v)} disabled={ro} />
             <Txt l="GSTIN" id="gstin" v={s.tax.gstin} on={(v) => setIn("tax", "gstin", v)} disabled={ro} /></div></Section>
@@ -116,6 +136,7 @@ export default function SettingsPage() {
             <Label className="text-xs text-slate-600">Stamp duty information</Label><Textarea disabled={ro} value={s.stamp_duty_info} onChange={(e) => set("stamp_duty_info", e.target.value)} data-testid="setting-stamp-duty" />
             <Label className="text-xs text-slate-600">Registration information</Label><Textarea disabled={ro} value={s.registration_info} onChange={(e) => set("registration_info", e.target.value)} data-testid="setting-registration" /></div></Section>
         </TabsContent>
+        <TabsContent value="firebase" className="mt-4"><FirebaseStatus /></TabsContent>
         <TabsContent value="password" className="mt-4"><PasswordCard /></TabsContent>
         <TabsContent value="history" className="mt-4">
           <Section title="Previous versions"><ul className="divide-y divide-slate-100 text-sm" data-testid="settings-history">

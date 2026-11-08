@@ -11,6 +11,8 @@ import { useAuth } from "../context/AuthContext";
 import { api, fmtDate, fmtDateTime, inr, label } from "../lib/api";
 
 const NUMS = [["outstanding_rent", "Outstanding rent"], ["utilities", "Utilities"], ["other_charges", "Other charges"], ["damage", "Damage"]];
+const MOVE_OUT = ["not_started", "scheduled", "in_progress", "completed"];
+const SETTLE = ["pending", "calculated", "approved", "paid", "disputed"];
 
 export default function Leaving() {
   const { can } = useAuth();
@@ -27,24 +29,40 @@ export default function Leaving() {
     onSubmit: async (v, reason) => { const { data } = await api.post(`/leaving/${sel.id}/settlement`, { ...v, reason }); toast.success(`Refund ${inr(data.refund_amount)}`); reload(sel.id); } });
   const act = (a) => open({ title: `${label(a)} leaving request`, danger: a === "reject",
     onSubmit: async (_, reason) => { await api.post(`/leaving/${sel.id}/action`, { action: a, reason }); toast.success(`Request ${a}d`); reload(sel.id); } });
+  const setField = (field, options) => open({ title: `Update ${label(field)}`, initial: { value: sel[field] },
+    fields: [{ name: "value", label: label(field), type: "select", options, required: true }],
+    onSubmit: async (v, reason) => { await api.post(`/leaving/${sel.id}/status`, { field, value: v.value, reason }); toast.success(`${label(field)} updated`); reload(sel.id); } });
   const s = sel?.settlement;
+  const who = (x) => (x ? `${x.by_name || x.by_id} (${label(x.by_type)}) · ${fmtDateTime(x.at)}` : "—");
 
   return (
     <div>
       {dialog}
-      <PageHeader title="Leaving Requests" subtitle="Move-out requests with full deposit settlement calculation" />
-      <DataTable entity="leaving" refreshKey={key} onRowClick={setSel} filters={[{ key: "status", label: "Status", options: ["pending", "approved", "rejected", "completed"] }]}
-        columns={[{ key: "id", label: "Request", render: (r) => <span className="tabular text-xs text-[#1E3A8A]">{r.id}</span> }, { key: "tenant_name", label: "Tenant", sortable: false },
-          { key: "owner_name", label: "Owner", sortable: false }, { key: "property_name", label: "Property", sortable: false },
-          { key: "requested_leave_date", label: "Leave date", render: (r) => fmtDate(r.requested_leave_date) }, { key: "deposit", label: "Deposit", render: (r) => inr(r.deposit) },
+      <PageHeader title="Leaving Requests" subtitle="Move-out requests from owners or tenants, with approval by owner or admin and final settlement" />
+      <DataTable entity="leaving" refreshKey={key} onRowClick={setSel}
+        filters={[{ key: "status", label: "Approval", options: ["pending", "approved", "rejected", "completed"] }, { key: "requested_by", label: "Requested by", options: ["tenant", "owner"] },
+          { key: "move_out_status", label: "Move-out", options: MOVE_OUT }, { key: "settlement_status", label: "Settlement", options: SETTLE }]}
+        columns={[{ key: "id", label: "Request", render: (r) => <span className="tabular text-xs text-[#1E3A8A]">{r.id}</span> },
+          { key: "requested_by", label: "Requested by", render: (r) => label(r.requested_by) }, { key: "tenant_name", label: "Tenant", sortable: false },
+          { key: "owner_name", label: "Owner", sortable: false }, { key: "property_name", label: "Property", sortable: false, render: (r) => `${r.property_name} · ${r.room || "—"}` },
+          { key: "requested_leave_date", label: "Leave date", render: (r) => fmtDate(r.requested_leave_date) },
+          { key: "status", label: "Approval", render: (r) => <StatusBadge value={r.status} /> },
+          { key: "approved_by", label: "Approved by", sortable: false, render: (r) => r.approved_by ? `${r.approved_by} (${label(r.approved_by_type)})` : "—" },
+          { key: "approval_date", label: "Approval date", sortable: false, render: (r) => fmtDate(r.approval_date) },
+          { key: "outstanding_rent", label: "Outstanding", sortable: false, render: (r) => r.outstanding_rent != null ? inr(r.outstanding_rent) : "—" },
+          { key: "deposit", label: "Deposit", render: (r) => inr(r.deposit) }, { key: "deductions", label: "Deductions", sortable: false, render: (r) => r.deductions != null ? inr(r.deductions) : "—" },
           { key: "refund_amount", label: "Refund", render: (r) => r.refund_amount != null ? inr(r.refund_amount) : "—" },
-          { key: "status", label: "Status", render: (r) => <StatusBadge value={r.status} /> }, { key: "created_at", label: "Created", render: (r) => fmtDate(r.created_at) }]} />
+          { key: "settlement_status", label: "Final settlement", render: (r) => <StatusBadge value={r.settlement_status} /> },
+          { key: "move_out_status", label: "Move-out", render: (r) => <StatusBadge value={r.move_out_status} /> }]} />
       <Sheet open={!!sel} onOpenChange={(o) => !o && setSel(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-xl" data-testid="leaving-sheet">
           {sel && (<>
             <SheetHeader><SheetTitle className="font-heading">{sel.id} · {sel.tenant_name}</SheetTitle></SheetHeader>
-            <div className="mt-2"><StatusBadge value={sel.status} testid="leaving-status" /></div>
-            <div className="mt-5"><KV cols={2} items={[["Property", sel.property_name], ["Owner", sel.owner_name], ["Leave date", fmtDate(sel.requested_leave_date)], ["Reason", sel.reason_text], ["Deposit", inr(sel.deposit)]]} /></div>
+            <div className="mt-2 flex gap-2"><StatusBadge value={sel.status} testid="leaving-status" /><StatusBadge value={sel.move_out_status} testid="leaving-moveout-status" /><StatusBadge value={sel.settlement_status} testid="leaving-settlement-status" /></div>
+            <div className="mt-5"><KV cols={2} items={[["Requested by", `${label(sel.requested_by)}${sel.requested_by_name ? ` · ${sel.requested_by_name}` : ""}`], ["Tenant", sel.tenant_name],
+              ["Owner", sel.owner_name], ["Property · Bed/Room/Seat", `${sel.property_name} · ${sel.room || "—"}`], ["Requested leaving date", fmtDate(sel.requested_leave_date)],
+              ["Reason", sel.reason_text], ["Approved / accepted by", who(sel.approval)], ["Rejected by", who(sel.rejection)], ["Rejection reason", sel.rejection_reason],
+              ["Security deposit", inr(sel.deposit)], ["Move-out status", label(sel.move_out_status)], ["Final settlement", label(sel.settlement_status)]]} /></div>
             <div className="mt-6 rounded-lg border border-slate-200 bg-slate-50 p-4" data-testid="settlement-summary">
               <p className="th mb-3">Settlement {s && `· v${s.version}`}</p>
               {s ? (<div className="space-y-1.5 text-sm">
@@ -61,6 +79,8 @@ export default function Leaving() {
                 {sel.status === "pending" && <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => act("approve")} data-testid="approve-leaving-button">Approve</Button>}
                 {sel.status === "approved" && <Button size="sm" className="bg-[#1E3A8A]" onClick={() => act("complete")} data-testid="complete-leaving-button">Complete move-out</Button>}
                 {["pending", "approved"].includes(sel.status) && <Button size="sm" variant="outline" className="text-red-600" onClick={() => act("reject")} data-testid="reject-leaving-button">Reject</Button>}
+                {sel.status !== "rejected" && <Button size="sm" variant="outline" onClick={() => setField("move_out_status", MOVE_OUT)} data-testid="update-moveout-button">Move-out status</Button>}
+                {sel.status !== "rejected" && <Button size="sm" variant="outline" onClick={() => setField("settlement_status", SETTLE)} data-testid="update-settlement-status-button">Settlement status</Button>}
               </div>
             )}
             <h4 className="mb-3 mt-8 font-heading font-semibold">Settlement history</h4>

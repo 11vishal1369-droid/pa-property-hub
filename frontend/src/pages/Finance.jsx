@@ -65,7 +65,10 @@ export default function Finance() {
           { key: "method", label: "Method", options: ["online", "manual"] }, { key: "purpose", label: "Purpose", options: ["platform_fee", "agreement_fee", "rent"] }]}
         columns={[{ key: "id", label: "Payment ID", render: (r) => <span className="tabular text-xs text-[#1E3A8A]">{r.id}</span> }, { key: "txn_ref", label: "Txn ref", render: (r) => <span className="tabular text-xs">{r.txn_ref}</span> },
           { key: "purpose", label: "Purpose", render: (r) => label(r.purpose) }, { key: "owner_name", label: "Owner", sortable: false }, { key: "tenant_name", label: "Tenant", sortable: false },
-          { key: "amount", label: "Amount", render: (r) => <span className="tabular">{inr(r.amount)}</span> }, { key: "discount", label: "Discount", render: (r) => r.discount ? inr(r.discount) : "—" },
+          { key: "amount", label: "Total received", render: (r) => <span className="tabular">{inr(r.total_received)}</span> },
+          { key: "base_amount", label: "Base", sortable: false, render: (r) => <span className="tabular">{inr(r.base_amount)}</span> },
+          { key: "gst_amount", label: "GST", sortable: false, render: (r) => <span className="tabular">{inr(r.gst_amount)}</span> },
+          { key: "total", label: "Total", sortable: false, render: (r) => <span className="tabular font-medium">{inr(r.total)}</span> }, { key: "discount", label: "Discount", render: (r) => r.discount ? inr(r.discount) : "—" },
           { key: "refunded_amount", label: "Refunded", render: (r) => r.refunded_amount ? inr(r.refunded_amount) : "—" }, { key: "method", label: "Method", render: (r) => label(r.method) },
           { key: "status", label: "Status", render: (r) => <StatusBadge value={r.status} /> }, { key: "created_at", label: "Date", render: (r) => fmtDateTime(r.created_at) }]}
         rowActions={(r) => (

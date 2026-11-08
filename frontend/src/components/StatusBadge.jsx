@@ -12,7 +12,8 @@ const TONES = {
 };
 const MAP = {
   active: "green", success: "green", approved: "green", verified: "green", completed: "green", delivered: "green", resolved: "green",
-  pending: "amber", pending_verification: "amber", open: "amber", in_progress: "blue", queued: "slate", sent: "blue", draft: "slate",
+  pending: "amber", pending_verification: "amber", pending_signature: "amber", open: "amber", in_progress: "blue", queued: "slate", sent: "blue", draft: "slate", scheduled: "violet", read: "green",
+  not_started: "slate", calculated: "blue", paid: "green", disputed: "red", removed: "slate", initiated: "blue", signed: "green",
   blocked: "red", failed: "red", rejected: "red", suspended: "orange", escalated: "orange", reopened: "violet",
   deactivated: "slate", inactive: "slate", archived: "slate", closed: "slate", expired: "slate", cancelled: "slate", none: "slate",
   refunded: "violet", partially_refunded: "violet", occupied: "blue", vacant: "amber",

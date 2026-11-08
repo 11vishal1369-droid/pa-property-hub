@@ -1,10 +1,11 @@
+import os
 import re
 from datetime import datetime, timezone, timedelta, date
 from typing import Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from core import (db, clean, audit, require, current_admin, now_iso, require_reason, hash_password, verify_password,
-                  create_token, next_id, MODULES, LEVELS, hash_entry, encrypt)
+                  create_token, next_id, MODULES, LEVELS, hash_entry, encrypt, FEE_CATEGORIES)
 
 router = APIRouter(prefix="/api")
 
@@ -150,11 +151,16 @@ async def create_role(body: NewRoleIn, admin=Depends(require("admins", "edit")))
     return clean(doc)
 
 
+SECRET_SLOTS = {"gateway_secret": ("gateway", "secret"), "esign_api_key": ("esign", "api_key"), "esign_webhook_secret": ("esign", "webhook_secret")}
+HIDDEN = {f"{k}_enc": 0 for k in SECRET_SLOTS}
+
+
 @router.get("/settings")
 async def get_settings(admin=Depends(require("settings", "view"))):
-    s = await db.settings.find_one({"key": "global"}, {"_id": 0})
-    s["gateway"]["secret_masked"] = "••••••••" + s["gateway"].get("secret_last4", "") if s["gateway"].get("secret_set") else ""
-    s.pop("gateway_secret_enc", None)
+    s = await db.settings.find_one({"key": "global"}, {"_id": 0, **HIDDEN})
+    for sec, f in SECRET_SLOTS.values():
+        s[sec][f"{f}_masked"] = ("••••••••" + s[sec].get(f"{f}_last4", "")) if s[sec].get(f"{f}_set") else ""
+    s["esign"]["webhook_url"] = f"{os.environ['PUBLIC_BASE_URL']}/api/esign/webhook"
     return s
 
 
@@ -162,25 +168,49 @@ class SettingsIn(BaseModel):
     settings: Dict[str, Any]
     reason: str
     gateway_secret: Optional[str] = None
+    esign_api_key: Optional[str] = None
+    esign_webhook_secret: Optional[str] = None
+
+
+def check_settings(new):
+    fees = new.get("agreement_fees")
+    if fees is not None:
+        if set(fees) != set(FEE_CATEGORIES):
+            raise HTTPException(400, "Agreement fees must cover exactly the property categories")
+        for k, v in fees.items():
+            if not isinstance(v, (int, float)) or v < 0:
+                raise HTTPException(400, f"Fee for {k} must be a non-negative number")
+    for k in ("owner_platform_fee", "platform_validity_days", "agreement_fee_default"):
+        if k in new and (not isinstance(new[k], (int, float)) or new[k] < 0):
+            raise HTTPException(400, f"{k} must be a non-negative number")
+    gst = (new.get("tax") or {}).get("gst_percent")
+    if gst is not None and (not isinstance(gst, (int, float)) or not 0 <= gst <= 28):
+        raise HTTPException(400, "GST % must be between 0 and 28")
 
 
 @router.put("/settings")
 async def update_settings(body: SettingsIn, admin=Depends(require("settings", "edit"))):
     reason = require_reason(body.reason)
-    old = await db.settings.find_one({"key": "global"}, {"_id": 0, "gateway_secret_enc": 0})
+    old = await db.settings.find_one({"key": "global"}, {"_id": 0, **HIDDEN})
     new = {k: v for k, v in body.settings.items() if k in old and k not in ("key", "version", "updated_at", "updated_by")}
-    if "gateway" in new:
-        new["gateway"].pop("secret_masked", None)
-        new["gateway"]["secret_set"] = old["gateway"].get("secret_set", False)
-        new["gateway"]["secret_last4"] = old["gateway"].get("secret_last4", "")
+    check_settings(new)
+    if "esign" in new:
+        new["esign"].pop("webhook_url", None)
+    for sec, f in SECRET_SLOTS.values():
+        if sec in new:
+            new[sec].pop(f"{f}_masked", None)
+            new[sec][f"{f}_set"] = old[sec].get(f"{f}_set", False)
+            new[sec][f"{f}_last4"] = old[sec].get(f"{f}_last4", "")
     upd = {**new, "version": old.get("version", 1) + 1, "updated_at": now_iso(), "updated_by": admin["email"]}
-    if body.gateway_secret:
-        upd["gateway_secret_enc"] = encrypt(body.gateway_secret)
-        upd.setdefault("gateway", dict(old["gateway"]))
-        upd["gateway"]["secret_set"] = True
-        upd["gateway"]["secret_last4"] = body.gateway_secret[-4:]
-    changed_old = {k: old.get(k) for k in new}
-    await audit(admin, "update_settings", "settings", "global", changed_old, {k: upd.get(k) for k in new if k != "gateway_secret_enc"}, reason)
+    for name, (sec, f) in SECRET_SLOTS.items():
+        val = getattr(body, name)
+        if val:
+            upd[f"{name}_enc"] = encrypt(val)
+            upd.setdefault(sec, dict(old[sec]))
+            upd[sec][f"{f}_set"] = True
+            upd[sec][f"{f}_last4"] = val[-4:]
+    await audit(admin, "update_settings", "settings", "global", {k: old.get(k) for k in new},
+                {**{k: upd.get(k) for k in new}, "secrets_changed": [n for n in SECRET_SLOTS if getattr(body, n)]}, reason)
     await db.settings_history.insert_one({**old, "archived_at": now_iso(), "replaced_by": admin["email"], "reason": reason})
     await db.settings.update_one({"key": "global"}, {"$set": upd})
     return await get_settings(admin)
@@ -188,7 +218,7 @@ async def update_settings(body: SettingsIn, admin=Depends(require("settings", "e
 
 @router.get("/settings/history")
 async def settings_history(admin=Depends(require("settings", "view"))):
-    return [d async for d in db.settings_history.find({}, {"_id": 0, "gateway_secret_enc": 0}).sort("archived_at", -1).limit(50)]
+    return [d async for d in db.settings_history.find({}, {"_id": 0, **HIDDEN}).sort("archived_at", -1).limit(50)]
 
 
 @router.get("/audit/verify")
@@ -254,8 +284,8 @@ async def dashboard(range: str = "all", frm: Optional[str] = None, to: Optional[
         "properties_archived": await c("properties", {"status": "archived"}),
         "pg_count": await c("properties", {"category": "PG"}), "residential_count": await c("properties", {"category": "Residential"}),
         "commercial_count": await c("properties", {"category": "Commercial"}),
-        "agreements_total": await c("agreements"), "agreements_pending": await c("agreements", {"status": {"$in": ["pending_verification", "draft"]}}),
-        "agreements_completed": await c("agreements", {"status": {"$in": ["verified", "completed"]}}),
+        "agreements_total": await c("agreements"), "agreements_pending": await c("agreements", {"status": {"$in": ["pending_signature", "draft"]}}),
+        "agreements_completed": await c("agreements", {"status": "completed"}),
         "agreement_fees": agr_fee["t"], "subscription_fees": sub_fee["t"], "coupon_discounts": disc["d"],
         "online_payments": online["t"], "manual_submissions": manual_count,
         "pending_approvals": await c("payments", {"method": "manual", "status": "pending"}),

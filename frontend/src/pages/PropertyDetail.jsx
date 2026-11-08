@@ -13,7 +13,8 @@ import { payCols, agrCols } from "./OwnerDetail";
 import { PROP_TYPES } from "./Directories";
 
 const path = (id) => `/properties/${id}/profile`;
-const EDIT = [["name", "Name"], ["category", "Category", "select", ["PG", "Residential", "Commercial"]], ["type", "Type", "select", PROP_TYPES], ["city", "City"],
+const EDIT = [["name", "Name"], ["category", "Category", "select", ["PG", "Residential", "Commercial"]], ["type", "Type", "select", PROP_TYPES],
+  ["pg_gender", "PG type (PG only)", "select", ["Boys", "Girls", "Co-living"]], ["city", "City"],
   ["rent", "Rent", "number"], ["deposit", "Deposit", "number"], ["total_units", "Total rooms/beds/seats", "number"], ["address", "Address", "textarea"]]
   .map(([name, l, type, options]) => ({ name, label: l, type, options }));
 const tenCols = [{ key: "tenant_name", label: "Tenant" }, { key: "room", label: "Room/Bed" }, { key: "join_date", label: "Joined", render: (r) => fmtDate(r.join_date) },
@@ -58,7 +59,7 @@ export default function PropertyDetail() {
       <ProfileTabs tabs={[
         ["overview", "Overview", <div className="space-y-4">
           <Section title="Property overview"><KV items={[["Owner", <button className="text-[#1E3A8A] underline-offset-2 hover:underline" onClick={() => nav(`/owners/${p.owner_id}`)}>{p.owner_name}</button>],
-            ["Category", p.category], ["Type", p.type], ["PG for", p.pg_gender], ["Address", `${p.address}, ${p.city}`], ["Occupancy", p.occupancy],
+            ["Category", p.category], ["Type", p.type], ["PG for", p.pg_gender], ["Fee category", p.fee_category], ["Address", `${p.address}, ${p.city}`], ["Occupancy", p.occupancy],
             ["Rent", inr(p.rent)], ["Deposit", inr(p.deposit)], ["Created", fmtDateTime(p.created_at)], ["Archived by", p.archived_source && `${p.archived_source} (${p.archived_by})`], ["Archive reason", p.archive_reason]]} /></Section>
           <Photos p={p} load={load} />
         </div>],

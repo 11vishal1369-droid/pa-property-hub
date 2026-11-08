@@ -99,7 +99,7 @@ export function DataTable({ entity, columns, filters = [], baseParams = {}, onRo
               {columns.map((c) => (
                 <th key={c.key} className="th whitespace-nowrap px-3 py-2.5 text-left">
                   {c.sortable === false ? c.label : (
-                    <button className="inline-flex items-center gap-1 hover:text-slate-900" data-testid={`${tid}-sort-${c.key}`}
+                    <button className="inline-flex items-center gap-1 uppercase hover:text-slate-900" data-testid={`${tid}-sort-${c.key}`}
                       onClick={() => setSort((s) => ({ key: c.key, order: s?.key === c.key && s.order === "desc" ? "asc" : "desc" }))}>
                       {c.label}<ArrowUpDown className="h-3 w-3 opacity-50" />
                     </button>

@@ -6,6 +6,8 @@ from starlette.middleware.cors import CORSMiddleware
 import data
 import core_routes
 import ops_routes
+import round2
+import firebase_sync
 from seed import run_seed
 
 app = FastAPI(title="PA Super Admin API")
@@ -18,6 +20,9 @@ async def root():
 
 app.include_router(core_routes.router)
 app.include_router(ops_routes.router)
+app.include_router(round2.router)
+app.include_router(round2.app)
+app.include_router(firebase_sync.router)
 app.include_router(data.router)
 
 app.add_middleware(CORSMiddleware, allow_credentials=False, allow_origins=os.environ.get("CORS_ORIGINS", "*").split(","),
@@ -28,6 +33,7 @@ logging.basicConfig(level=logging.INFO)
 @app.on_event("startup")
 async def startup():
     await run_seed()
+    await round2.migrate_round2()
 
 
 @app.on_event("shutdown")

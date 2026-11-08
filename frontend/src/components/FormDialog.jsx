@@ -6,9 +6,14 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Label } from "./ui/label";
 import { errMsg, label } from "../lib/api";
+import { UserPicker } from "./UserPicker";
 
-const Field = ({ f, value, onChange }) => {
+const Field = ({ f, value, onChange, vals }) => {
   const id = `field-${f.name}`;
+  if (f.type === "users") {
+    const t = typeof f.userType === "function" ? f.userType(vals) : f.userType;
+    return <UserPicker key={t} type={t} value={value || []} onChange={onChange} single={f.single?.(vals)} testid={`form-${f.name}-picker`} />;
+  }
   if (f.type === "select")
     return (
       <select id={id} data-testid={`form-${f.name}-select`} value={value ?? ""} onChange={(e) => onChange(e.target.value)}
@@ -36,7 +41,7 @@ export function FormDialog({ open, onOpenChange, title, description, fields = []
   }, [open]);
 
   const submit = async () => {
-    for (const f of fields) if (f.required && (vals[f.name] === undefined || vals[f.name] === "")) return toast.error(`${f.label} is required`);
+    for (const f of fields) if ((!f.show || f.show(vals)) && f.required && (vals[f.name] === undefined || vals[f.name] === "")) return toast.error(`${f.label} is required`);
     if (requireReason && !reason.trim()) return toast.error("Reason is required for this action");
     const out = { ...vals };
     fields.forEach((f) => { if (f.type === "number" && out[f.name] !== "" && out[f.name] != null) out[f.name] = Number(out[f.name]); });
@@ -59,10 +64,10 @@ export function FormDialog({ open, onOpenChange, title, description, fields = []
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
         <div className={`grid gap-3 ${wide ? "sm:grid-cols-2" : ""}`}>
-          {fields.map((f) => (
-            <div key={f.name} className={`space-y-1.5 ${f.type === "textarea" || f.full ? "sm:col-span-2" : ""}`}>
+          {fields.filter((f) => !f.show || f.show(vals)).map((f) => (
+            <div key={f.name} className={`space-y-1.5 ${f.type === "textarea" || f.type === "users" || f.full ? "sm:col-span-2" : ""}`}>
               <Label htmlFor={`field-${f.name}`} className="text-xs text-slate-600">{f.label}{f.required && " *"}</Label>
-              <Field f={f} value={vals[f.name]} onChange={(v) => setVals((s) => ({ ...s, [f.name]: v }))} />
+              <Field f={f} vals={vals} value={vals[f.name]} onChange={(v) => setVals((s) => ({ ...s, [f.name]: v }))} />
             </div>
           ))}
           {requireReason && (

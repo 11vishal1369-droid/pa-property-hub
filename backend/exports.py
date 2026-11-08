@@ -56,6 +56,11 @@ def export_response(rows, columns, fmt, title):
 
 
 def simple_pdf(title, lines, filename):
+    return StreamingResponse(io.BytesIO(pdf_bytes(title, lines)), media_type="application/pdf",
+                             headers={"Content-Disposition": f'inline; filename="{filename}"'})
+
+
+def pdf_bytes(title, lines):
     buf = io.BytesIO()
     doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=40, rightMargin=40, topMargin=40, bottomMargin=40)
     styles = getSampleStyleSheet()
@@ -64,6 +69,4 @@ def simple_pdf(title, lines, filename):
         story.append(Paragraph(text.replace("\n", "<br/>"), styles["Heading3"] if kind == "h" else styles["BodyText"]))
         story.append(Spacer(1, 4))
     doc.build(story)
-    buf.seek(0)
-    return StreamingResponse(buf, media_type="application/pdf",
-                             headers={"Content-Disposition": f'inline; filename="{filename}"'})
+    return buf.getvalue()

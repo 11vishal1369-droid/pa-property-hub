@@ -1,10 +1,11 @@
-from datetime import datetime, timezone, timedelta, date
+from datetime import timedelta, date
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from pymongo.errors import DuplicateKeyError
 from pydantic import BaseModel
-from core import db, clean, audit, audited, require, current_admin, now_iso, require_reason, next_id, decrypt, mask_aadhaar
-from data import enrich, validate_coupon as validate_coupon_fields
+from core import db, clean, audit, audited, require, current_admin, now_iso, require_reason, next_id, decrypt, fee_category, gst_split
+import re
+from data import enrich, validate_coupon as validate_coupon_fields, validate_coupon_targets, ELIGIBILITY
 from exports import simple_pdf
 
 router = APIRouter(prefix="/api")
@@ -95,49 +96,61 @@ async def remove_photo(pid: str, body: PhotoIn, admin=Depends(require("propertie
 
 
 # Agreements
+PARTY_FIELDS = {"_id": 0, "id": 1, "name": 1, "mobile": 1, "email": 1, "gender": 1, "address": 1, "city": 1, "status": 1, "permanent_address": 1, "room": 1}
+
+
+async def agreement_full(aid):
+    a = (await enrich("agreements", [clean(await must("agreements", aid))]))[0]
+    prop = await db.properties.find_one({"id": a["property_id"]}, {"_id": 0, "id": 1, "name": 1, "category": 1, "type": 1, "pg_gender": 1, "address": 1, "city": 1})
+    pay = await db.payments.find_one({"id": a.get("payment_id")}, {"_id": 0}) if a.get("payment_id") else None
+    pay = pay or await db.payments.find_one({"agreement_id": aid, "purpose": "agreement_fee"}, {"_id": 0}, sort=[("created_at", -1)])
+    if pay:
+        pay = (await enrich("payments", [clean(pay)]))[0]
+    a["owner"] = await db.owners.find_one({"id": a["owner_id"]}, PARTY_FIELDS)
+    a["tenant"] = await db.tenants.find_one({"id": a["tenant_id"]}, PARTY_FIELDS)
+    a["property"] = {**(prop or {}), "fee_category": a.get("fee_category") or (fee_category(prop) if prop else None)}
+    a["payment"] = pay
+    return a
+
+
 @router.get("/agreements/{aid}/detail")
 async def agreement_detail(aid: str, admin=Depends(require("agreements", "view"))):
-    a = (await enrich("agreements", [clean(await must("agreements", aid))]))[0]
+    a = await agreement_full(aid)
     return {"agreement": a, "payments": await find_all("payments", {"agreement_id": aid}), "activity": await activity(aid)}
+
+
+def agreement_lines(a, v):
+    ver = next((x for x in a["versions"] if x["version"] == v), None)
+    if not ver:
+        raise HTTPException(404, "Version not found")
+    o, t, p, pay = a.get("owner") or {}, a.get("tenant") or {}, a.get("property") or {}, a.get("payment")
+    es = a.get("esign") or {}
+
+    def sign(party):
+        e = es.get(party) or {}
+        return (f"{party.title()} e-Sign: {e.get('status', 'pending').upper()}"
+                + (f" | Signed {e.get('signed_at')} | Provider {e.get('provider')} ref {e.get('provider_ref')} | Verification {e.get('verification_result')}" if e.get("status") == "signed" else ""))
+    lines = [("h", a["category"]), ("p", f"Agreement No: {a['id']} | Version {v} | Created {ver['created_at'][:10]}"),
+             ("p", f"Owner (Licensor): {o.get('name')} ({a['owner_id']}) | {o.get('mobile')} | {o.get('email')}"),
+             ("p", f"Tenant (Licensee): {t.get('name')} ({a['tenant_id']}) | {t.get('mobile')} | {t.get('email')}"),
+             ("p", f"Property: {p.get('name')} ({a['property_id']}) | Category: {p.get('fee_category')} | {p.get('address')}, {p.get('city')}"),
+             ("p", f"Term: {a.get('start_date')} to {a.get('end_date')} | Rent: Rs. {a.get('rent')} | Deposit: Rs. {a.get('deposit')}"),
+             ("h", "Terms & Conditions"), ("p", ver["content"]), ("h", "Agreement fee")]
+    if pay:
+        lines += [("p", f"Fee Rs. {a.get('fee')} | Coupon {a.get('coupon_code') or '—'} discount Rs. {a.get('discount') or 0} | Final paid Rs. {pay['total_received']} "
+                        f"(Base Rs. {pay['base_amount']} + GST {pay['gst_rate']}% Rs. {pay['gst_amount']}) | {pay['method']} | Txn {pay['txn_ref']} | {pay['status']}")]
+    else:
+        lines += [("p", f"Fee Rs. {a.get('fee')} — not paid")]
+    lines += [("h", "Aadhaar e-Sign"), ("p", sign("owner")), ("p", sign("tenant")),
+              ("p", "Note: Stamp duty / registration charges are government levies and are separate from PA service fees.")]
+    return lines
 
 
 @router.get("/agreements/{aid}/pdf")
 async def agreement_pdf(aid: str, version: Optional[int] = None, admin=Depends(require("agreements", "view"))):
-    a = (await enrich("agreements", [clean(await must("agreements", aid))]))[0]
+    a = await agreement_full(aid)
     v = version or a["current_version"]
-    ver = next((x for x in a["versions"] if x["version"] == v), None)
-    if not ver:
-        raise HTTPException(404, "Version not found")
-    lines = [("h", f"{a['category']}"), ("p", f"Agreement ID: {a['id']} | Version {v} | Created {ver['created_at'][:10]}"),
-             ("p", f"Owner: {a.get('owner_name')} ({a['owner_id']})"), ("p", f"Tenant: {a.get('tenant_name')} ({a['tenant_id']})"),
-             ("p", f"Property: {a.get('property_name')} ({a['property_id']})"),
-             ("p", f"Term: {a.get('start_date')} to {a.get('end_date')} | Rent: Rs. {a.get('rent')} | Deposit: Rs. {a.get('deposit')}"),
-             ("h", "Terms & Conditions"), ("p", ver["content"]),
-             ("h", "Acceptance"), ("p", f"Owner accepted: {a.get('owner_accepted_at') or 'Pending'}"),
-             ("p", f"Tenant accepted: {a.get('tenant_accepted_at') or 'Pending'}"),
-             ("p", f"Verification: {a.get('status')} {('by ' + a['verification']['by']) if a.get('verification') else ''}"),
-             ("p", "Note: Stamp duty / registration charges are government levies and are separate from PA service fees.")]
-    return simple_pdf(f"PA Rental Agreement — {a['id']}", lines, f"{a['id']}_v{v}.pdf")
-
-
-class VerifyIn(BaseModel):
-    decision: str
-    reason: str
-
-
-@router.post("/agreements/{aid}/verify")
-async def verify_agreement(aid: str, body: VerifyIn, admin=Depends(require("agreements", "edit"))):
-    reason = require_reason(body.reason)
-    if body.decision not in ("verified", "rejected"):
-        raise HTTPException(400, "Decision must be verified or rejected")
-    a = await must("agreements", aid)
-    if a["status"] not in ("pending_verification", "draft", "rejected"):
-        raise HTTPException(400, f"Cannot verify agreement in status {a['status']}")
-    ver = {"by": admin["email"], "at": now_iso(), "decision": body.decision, "remarks": reason}
-    entry = {"at": now_iso(), "by": admin["email"], "action": "verification", "old": a["status"], "new": body.decision, "reason": reason}
-    await audit(admin, f"agreement_{body.decision}", "agreements", aid, {"status": a["status"]}, {"status": body.decision}, reason)
-    await db.agreements.update_one({"id": aid}, {"$set": {"status": body.decision, "verification": ver}, "$push": {"status_history": entry, "verification_history": ver}})
-    return {"ok": True}
+    return simple_pdf(f"PA Rental Agreement — {a['id']}", agreement_lines(a, v), f"{a['id']}_v{v}.pdf")
 
 
 class VersionIn(BaseModel):
@@ -149,6 +162,8 @@ class VersionIn(BaseModel):
 async def new_version(aid: str, body: VersionIn, admin=Depends(require("agreements", "edit"))):
     reason = require_reason(body.reason)
     a = await must("agreements", aid)
+    if a["status"] == "completed" or any((a.get("esign") or {}).get(p, {}).get("status") == "signed" for p in ("owner", "tenant")):
+        raise HTTPException(400, "Agreement already has e-signatures; a signed document cannot be changed")
     v = a["current_version"] + 1
     ver = {"version": v, "content": body.content, "created_at": now_iso(), "created_by": admin["email"], "reason": reason}
     await audit(admin, "new_version", "agreements", aid, {"version": v - 1}, {"version": v}, reason)
@@ -277,7 +292,7 @@ async def record_manual(body: ManualIn, admin=Depends(require("finance", "edit")
     await must("owners", body.owner_id)
     doc = {"id": await next_id("PAY"), "txn_ref": body.txn_ref.strip(), "purpose": body.purpose, "owner_id": body.owner_id,
            "tenant_id": body.tenant_id, "agreement_id": body.agreement_id, "property_id": None, "amount": body.amount, "discount": 0,
-           "coupon_code": None, "refunded_amount": 0, "method": "manual", "gateway": None, "status": "pending", "receipt_no": None,
+           "coupon_code": None, "refunded_amount": 0, "gst_rate": (await db.settings.find_one({"key": "global"}))["tax"].get("gst_percent", 18), "method": "manual", "gateway": None, "status": "pending", "receipt_no": None,
            "created_at": now_iso(), "recorded_by": admin["email"], "history": [{"at": now_iso(), "by": admin["email"], "new": "pending", "reason": reason}]}
     async def write():
         try:
@@ -300,7 +315,9 @@ async def receipt(pid: str, admin=Depends(require("finance", "view"))):
              ("p", f"Date: {p['created_at'][:19].replace('T', ' ')}"), ("p", f"Paid by: {p.get('owner_name') or p.get('tenant_name')}"),
              ("p", f"Purpose: {p['purpose'].replace('_', ' ').title()} | Method: {p['method'].title()}"),
              ("p", f"Gross: Rs. {p['amount'] + (p.get('discount') or 0)} | Discount: Rs. {p.get('discount') or 0} ({p.get('coupon_code') or 'no coupon'})"),
-             ("h", f"Amount Paid: Rs. {p['amount']}"), ("p", f"Refunded: Rs. {p.get('refunded_amount', 0)} | Status: {p['status']}")]
+             ("h", "GST breakdown (GST inclusive)"),
+             ("p", f"Total Received: Rs. {p['total_received']:.2f}<br/>Base Amount: Rs. {p['base_amount']:.2f}<br/>GST @ {p['gst_rate']}%: Rs. {p['gst_amount']:.2f}<br/>Total: Rs. {p['total']:.2f}"),
+             ("h", f"Amount Paid: Rs. {p['amount']:.2f}"), ("p", f"Refunded: Rs. {p.get('refunded_amount', 0)} | Status: {p['status']}")]
     return simple_pdf("PA Property Management — Payment Receipt", lines, f"receipt_{p['id']}.pdf")
 
 
@@ -344,6 +361,8 @@ class CouponIn(BaseModel):
     max_usage: int = 100
     per_owner_limit: int = 1
     applies_to: str = "both"
+    eligibility: str = "all_owners"
+    eligible_ids: List[str] = []
     reason: str
 
 
@@ -354,6 +373,7 @@ async def create_coupon(body: CouponIn, admin=Depends(require("coupons", "edit")
     if not code:
         raise HTTPException(400, "Coupon code is required")
     validate_coupon_fields(body.model_dump())
+    await validate_coupon_targets(body.model_dump())
     if await db.coupons.find_one({"code": code}):
         raise HTTPException(409, "Coupon code already exists")
     doc = {**body.model_dump(exclude={"reason"}), "code": code, "id": await next_id("CPN"), "status": "active", "used_count": 0,
@@ -367,30 +387,59 @@ class ValidateIn(BaseModel):
     code: str
     amount: float
     fee_type: str
+    user_type: Optional[str] = None
+    user_id: Optional[str] = None
     owner_id: Optional[str] = None
+
+
+async def evaluate_coupon(code, amount, fee_type, user_type=None, user_id=None):
+    c = await db.coupons.find_one({"code": (code or "").strip().upper()}, {"_id": 0})
+    today = date.today().isoformat()
+    if not c:
+        return {"valid": False, "message": "Coupon not found"}
+    aud, _ = ELIGIBILITY.get(c.get("eligibility", "all_owners"), ("owner", False))
+    checks = [(c["status"] == "active", "Coupon is inactive"), (c["start_date"] <= today <= c["end_date"], "Coupon is not within validity dates"),
+              (c["applies_to"] in ("both", fee_type), f"Coupon does not apply to {fee_type}"),
+              (amount >= (c.get("min_amount") or 0), f"Minimum amount is {c.get('min_amount')}"),
+              (c["used_count"] < c["max_usage"], "Coupon usage limit reached")]
+    if user_type or user_id:
+        checks.append((user_type in ("owner", "tenant") and bool(user_id), "user_type (owner/tenant) and user_id are required"))
+        checks.append((aud is None or aud == user_type, f"Coupon is only for {aud}s"))
+        checks.append((not c.get("eligibility", "").startswith("selected") or user_id in (c.get("eligible_ids") or []), "You are not eligible for this coupon"))
+    for ok, msg in checks:
+        if not ok:
+            return {"valid": False, "message": msg}
+    if user_id:
+        used = await db.coupon_usages.count_documents({"coupon_id": c["id"], "$or": [{"user_id": user_id}, {"owner_id": user_id}]})
+        if used >= c["per_owner_limit"]:
+            return {"valid": False, "message": "Per-user usage limit reached"}
+    disc = amount * c["value"] / 100 if c["discount_type"] == "percent" else c["value"]
+    if c.get("max_discount"):
+        disc = min(disc, c["max_discount"])
+    disc = round(min(disc, amount), 2)
+    final = round(amount - disc, 2)
+    return {"valid": True, "coupon_id": c["id"], "discount": disc, "final_amount": final, "gst": gst_split(final), "message": "Coupon applied"}
 
 
 @router.post("/coupons/validate")
 async def validate_coupon(body: ValidateIn, admin=Depends(require("coupons", "view"))):
-    c = await db.coupons.find_one({"code": body.code.strip().upper()}, {"_id": 0})
-    today = date.today().isoformat()
-    if not c:
-        return {"valid": False, "message": "Coupon not found"}
-    checks = [(c["status"] == "active", "Coupon is inactive"), (c["start_date"] <= today <= c["end_date"], "Coupon is not within validity dates"),
-              (c["applies_to"] in ("both", body.fee_type), f"Coupon does not apply to {body.fee_type}"),
-              (body.amount >= c.get("min_amount", 0), f"Minimum amount is {c.get('min_amount')}"),
-              (c["used_count"] < c["max_usage"], "Coupon usage limit reached")]
-    if body.owner_id:
-        used = await db.coupon_usages.count_documents({"coupon_id": c["id"], "owner_id": body.owner_id})
-        checks.append((used < c["per_owner_limit"], "Per-owner usage limit reached"))
-    for ok, msg in checks:
-        if not ok:
-            return {"valid": False, "message": msg}
-    disc = body.amount * c["value"] / 100 if c["discount_type"] == "percent" else c["value"]
-    if c.get("max_discount"):
-        disc = min(disc, c["max_discount"])
-    disc = round(min(disc, body.amount), 2)
-    return {"valid": True, "discount": disc, "final_amount": round(body.amount - disc, 2), "message": "Coupon applied"}
+    ut, uid = body.user_type, body.user_id
+    if body.owner_id and not uid:
+        ut, uid = "owner", body.owner_id
+    return await evaluate_coupon(body.code, body.amount, body.fee_type, ut, uid)
+
+
+@router.get("/lookup/users")
+async def lookup_users(type: str, q: str = "", ids: str = "", admin=Depends(current_admin)):
+    if type not in ("owner", "tenant"):
+        raise HTTPException(400, "type must be owner or tenant")
+    coll = "owners" if type == "owner" else "tenants"
+    if ids:
+        query = {"id": {"$in": ids.split(",")}}
+    else:
+        rx = {"$regex": re.escape(q.strip()), "$options": "i"}
+        query = {"$or": [{"id": rx}, {"name": rx}, {"mobile": rx}]} if q.strip() else {}
+    return [d async for d in db[coll].find(query, {"_id": 0, "id": 1, "name": 1, "mobile": 1, "status": 1}).limit(20)]
 
 
 @router.get("/coupons/{cid}/usage")
@@ -414,6 +463,8 @@ async def complaint_action(cid: str, body: ComplaintActionIn, admin=Depends(requ
         if body.value not in ("open", "in_progress", "resolved"):
             raise HTTPException(400, "Invalid status")
         upd["status"] = body.value
+        if body.value == "resolved":
+            upd.update(resolution=reason, resolved_at=now_iso(), resolved_by=admin["email"])
     elif body.action == "escalate":
         upd.update(status="escalated", escalation_level=c.get("escalation_level", 0) + 1)
     elif body.action == "assign":
@@ -424,9 +475,9 @@ async def complaint_action(cid: str, body: ComplaintActionIn, admin=Depends(requ
     elif body.action == "reopen":
         if c["status"] not in ("resolved", "closed"):
             raise HTTPException(400, "Only resolved/closed complaints can be reopened")
-        upd.update(status="reopened", reopen_count=c.get("reopen_count", 0) + 1, close_reason=None, closed_at=None)
+        upd.update(status="reopened", reopen_count=c.get("reopen_count", 0) + 1, close_reason=None, closed_at=None, resolution=None, resolved_at=None)
     elif body.action == "close":
-        upd.update(status="closed", closed_at=now_iso(), close_reason=reason)
+        upd.update(status="closed", closed_at=now_iso(), close_reason=reason, resolution=c.get("resolution") or reason)
     elif body.action != "remark":
         raise HTTPException(400, "Unknown action")
     entry = {"at": now_iso(), "by": admin["email"], "action": body.action, "value": body.value, "old_status": c["status"], "reason": reason}
@@ -462,7 +513,7 @@ async def settlement(lid: str, body: SettlementIn, admin=Depends(require("leavin
          "payable_by_tenant": max(-net, 0), "calculated_at": now_iso(), "calculated_by": admin["email"], "reason": reason,
          "version": len(lr.get("settlement_history", [])) + 1}
     await audit(admin, "settlement", "leaving", lid, lr.get("settlement"), s, reason)
-    await db.leaving.update_one({"id": lid}, {"$set": {"settlement": s, "refund_amount": s["refund_amount"]}, "$push": {"settlement_history": s}})
+    await db.leaving.update_one({"id": lid}, {"$set": {"settlement": s, "refund_amount": s["refund_amount"], "settlement_status": "calculated"}, "$push": {"settlement_history": s}})
     return s
 
 
@@ -471,29 +522,78 @@ class LeaveActionIn(BaseModel):
     reason: str
 
 
-@router.post("/leaving/{lid}/action")
-async def leaving_action(lid: str, body: LeaveActionIn, admin=Depends(require("leaving", "edit"))):
-    reason = require_reason(body.reason)
+MOVE_OUT = ["not_started", "scheduled", "in_progress", "completed"]
+SETTLEMENT_STATUS = ["pending", "calculated", "approved", "paid", "disputed"]
+
+
+async def leaving_transition(lid, action, actor, actor_type, reason, owner_id=None):
     lr = await must("leaving", lid)
+    if owner_id and lr["owner_id"] != owner_id:
+        raise HTTPException(403, "This leaving request does not belong to this owner")
     flow = {"approve": (["pending"], "approved"), "reject": (["pending", "approved"], "rejected"), "complete": (["approved"], "completed")}
-    if body.action not in flow:
+    if action not in flow:
         raise HTTPException(400, "Unknown action")
-    allowed, new = flow[body.action]
+    allowed, new = flow[action]
     if lr["status"] not in allowed:
-        raise HTTPException(400, f"Cannot {body.action} a {lr['status']} request")
+        raise HTTPException(400, f"Cannot {action} a {lr['status']} request")
     if new == "completed" and not lr.get("settlement"):
         raise HTTPException(400, "Calculate settlement before completing")
-    entry = {"at": now_iso(), "by": admin["email"], "old": lr["status"], "new": new, "reason": reason}
-    await audit(admin, f"leaving_{body.action}", "leaving", lid, {"status": lr["status"]}, {"status": new}, reason)
+    by = {"by_type": actor_type, "by_id": actor["id"], "by_name": actor.get("name"), "by_email": actor.get("email"), "at": now_iso()}
+    upd = {"status": new}
+    if new == "approved":
+        upd["approval"] = by
+    if new == "rejected":
+        upd.update(rejection=by, rejection_reason=reason)
+    if new == "completed":
+        upd.update(move_out_status="completed", completion=by)
+    entry = {"at": now_iso(), "by": actor.get("email") or actor["id"], "actor_type": actor_type, "action": action, "old": lr["status"], "new": new, "reason": reason}
+    await audit(actor, f"leaving_{action}", "leaving", lid, {"status": lr["status"]}, {"status": new, "by_type": actor_type}, reason)
     if new == "completed":
         await db.tenants.update_one({"id": lr["tenant_id"]}, {"$set": {"leave_date": lr["requested_leave_date"]}})
         await db.tenancies.update_one({"tenant_id": lr["tenant_id"], "property_id": lr["property_id"], "active": True},
                                       {"$set": {"active": False, "leave_date": lr["requested_leave_date"]}})
-        still = await db.tenancies.count_documents({"property_id": lr["property_id"], "active": True})
-        if not still:
+        if not await db.tenancies.count_documents({"property_id": lr["property_id"], "active": True}):
             await db.properties.update_one({"id": lr["property_id"]}, {"$set": {"occupancy_state": "vacant"}})
-    await db.leaving.update_one({"id": lid}, {"$set": {"status": new}, "$push": {"timeline": entry}})
+    await db.leaving.update_one({"id": lid}, {"$set": upd, "$push": {"timeline": entry}})
     return {"ok": True, "status": new}
+
+
+async def leaving_field(lid, field, value, actor, actor_type, reason, owner_id=None):
+    options = {"move_out_status": MOVE_OUT, "settlement_status": SETTLEMENT_STATUS}[field]
+    if value not in options:
+        raise HTTPException(400, f"{field} must be one of {options}")
+    lr = await must("leaving", lid)
+    if owner_id and lr["owner_id"] != owner_id:
+        raise HTTPException(403, "This leaving request does not belong to this owner")
+    if lr["status"] == "rejected":
+        raise HTTPException(400, "Request is rejected")
+    if field == "move_out_status" and value != "not_started" and lr["status"] == "pending":
+        raise HTTPException(400, "Approve the request before updating move-out")
+    if field == "settlement_status" and value in ("approved", "paid") and not lr.get("settlement"):
+        raise HTTPException(400, "Calculate settlement first")
+    old = lr.get(field)
+    entry = {"at": now_iso(), "by": actor.get("email") or actor["id"], "actor_type": actor_type, "action": field, "old": old, "new": value, "reason": reason}
+    await audit(actor, f"leaving_{field}", "leaving", lid, {field: old}, {field: value, "by_type": actor_type}, reason)
+    await db.leaving.update_one({"id": lid}, {"$set": {field: value}, "$push": {"timeline": entry}})
+    return {"ok": True, field: value}
+
+
+@router.post("/leaving/{lid}/action")
+async def leaving_action(lid: str, body: LeaveActionIn, admin=Depends(require("leaving", "edit"))):
+    return await leaving_transition(lid, body.action, admin, "admin", require_reason(body.reason))
+
+
+class LeaveFieldIn(BaseModel):
+    field: str
+    value: str
+    reason: str
+
+
+@router.post("/leaving/{lid}/status")
+async def leaving_status(lid: str, body: LeaveFieldIn, admin=Depends(require("leaving", "edit"))):
+    if body.field not in ("move_out_status", "settlement_status"):
+        raise HTTPException(400, "Invalid field")
+    return await leaving_field(lid, body.field, body.value, admin, "admin", require_reason(body.reason))
 
 
 # Banners
@@ -505,16 +605,16 @@ class BannerIn(BaseModel):
     destination: Optional[str] = ""
     start_date: str
     end_date: str
-    audience: str = "both"
+    audience: str
     reason: str
 
 
 @router.post("/banners")
 async def create_banner(body: BannerIn, admin=Depends(require("banners", "edit"))):
     reason = require_reason(body.reason)
-    if body.audience not in ("owner", "tenant", "both"):
-        raise HTTPException(400, "Invalid audience")
-    last = await db.banners.find_one(sort=[("order", -1)])
+    if body.audience not in ("owner", "tenant"):
+        raise HTTPException(400, "Audience must be owner or tenant")
+    last = await db.banners.find_one({"audience": body.audience}, sort=[("order", -1)])
     doc = {**body.model_dump(exclude={"reason"}), "id": await next_id("BNR"), "order": (last["order"] + 1) if last else 1,
            "status": "active", "created_at": now_iso(), "created_by": admin["email"], "history": []}
     await audit(admin, "create", "banners", doc["id"], None, {"title": body.title}, reason)
@@ -530,18 +630,21 @@ class ReorderIn(BaseModel):
 @router.post("/banners/reorder")
 async def reorder_banners(body: ReorderIn, admin=Depends(require("banners", "edit"))):
     reason = require_reason(body.reason)
-    await audit(admin, "reorder", "banners", "banners", None, {"order": body.ids}, reason)
+    auds = {b["audience"] async for b in db.banners.find({"id": {"$in": body.ids}}, {"audience": 1})}
+    if len(auds) != 1:
+        raise HTTPException(400, "Reorder banners of one app (owner or tenant) at a time")
+    await audit(admin, "reorder", "banners", "banners", None, {"audience": auds.pop(), "order": body.ids}, reason)
     for i, bid in enumerate(body.ids):
         await db.banners.update_one({"id": bid}, {"$set": {"order": i + 1}})
     return {"ok": True}
 
 
 @router.get("/public/banners")
-async def public_banners(audience: str = "both"):
+async def public_banners(audience: str):
+    if audience not in ("owner", "tenant"):
+        raise HTTPException(400, "audience must be owner or tenant")
     today = date.today().isoformat()
-    q = {"status": "active", "start_date": {"$lte": today}, "end_date": {"$gte": today}}
-    if audience != "both":
-        q["audience"] = {"$in": [audience, "both"]}
+    q = {"status": "active", "audience": audience, "start_date": {"$lte": today}, "end_date": {"$gte": today}}
     return [clean(b) async for b in db.banners.find(q, {"history": 0, "created_by": 0}).sort("order", 1)]
 
 

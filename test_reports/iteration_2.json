@@ -1,0 +1,38 @@
+{
+  "summary": "Round 2 frontend E2E (Playwright, desktop 1920x1080, admin@pa.com). All 9 requested flows pass: login/dashboard, Finance GST split, Settings fees + e-Sign tab, Agreements e-Sign-only flow, Complaints owner/tenant tabs + resolution, Leaving approve + move-out, Banners per-app CRUD/reorder/remove/restore, Notifications selected/scheduled sends, Coupons multi-owner eligibility + validation. No page errors or compile overlay on any page. One medium UX bug in UserPicker (stale selections kept when the eligibility user type changes), plus a few minor items.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Coupons create/edit dialog / UserPicker", "issue": "Steps: choose 'Multiple Selected Owners', pick owners, then switch to 'Multiple Selected Tenants' (or 'Selected Tenant'). The OWN-* chips stay, and because the name lookup now runs with type=tenant they show the raw ID twice ('OWN-10001 OWN-10001'). Submitting gives the backend error 'Some selected users are not valid tenants'. Switching from multiple to single ('Selected Owner') also keeps all 3 chips, and the user only gets 'Select exactly one user for single-user eligibility' on submit. Fix: clear eligible_ids when the resolved userType changes, and trim to the last pick when single becomes true.", "selector": "[data-testid=form-eligibility-select], [data-testid^=form-eligible_ids-picker-chip-]", "priority": "MEDIUM"},
+      {"component": "Settings > Fees", "issue": "The review request says the testid is agreement-fee-0..12, but the actual testid is setting-agreement-fee-0..12 (the Num helper adds the setting- prefix). Works fine. Only the test contract or docs differ.", "selector": "[data-testid=setting-agreement-fee-N]", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Agreements list", "issues": ["At 1920px the table overflows horizontally; the Ver., Status and Created columns are cut off and need a horizontal scroll"]},
+      {"screen": "All DataTables", "issues": ["Sortable headers are mixed-case ('Total received', 'Fee') and non-sortable ones are UPPERCASE ('BASE', 'GST', 'TOTAL'), which looks inconsistent in the same header row"]},
+      {"screen": "Forms / filters", "issues": ["The date and datetime fields (banner and coupon dates, notification schedule, table date filters) use the browser's native picker instead of the shadcn Calendar"]},
+      {"screen": "Notifications send history", "issues": ["The 'Sent' column shows the creation time even for scheduled campaigns. Consider renaming it to 'Created'"]},
+      {"screen": "Leaving sheet", "issues": ["'Requested by' shows only 'Tenant' with no name. requested_by_name is empty for all 22 seeded requests"]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "UserPicker/Coupons: reset eligible_ids when the eligibility user type changes (owner<->tenant), and enforce a single selection in the UI when single=true",
+    "Optional: align the agreement fee testids with the spec (agreement-fee-N) or update the docs",
+    "Optional: make the Agreements table fit at 1920px, keep table header casing consistent, and use the shadcn date picker",
+    "Seed data gap: no complaint has attachments, every complaint has only 1 message, all leaving requests are tenant-raised and none has requested_by_name. Photo/video rendering, multi-party reply threads and owner-raised leaving could not be checked visually"
+  ],
+  "critical_code_review_comments": [
+    "UserPicker: when `type` changes, the component remounts (key=t in FormDialog) but the parent value is kept, so stale cross-type IDs remain",
+    "UserPicker: the `single` prop only affects new adds; it doesn't trim an existing multi-selection",
+    "Banners: the move() reorder sends only the current tab's visible (non-removed) ids. Fine per tab, but removed banners keep their old order numbers",
+    "Complaints status dialog offers only open/in_progress/resolved; escalated and reopened are reached through the dedicated buttons. OK"
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend only)", "frontend": "~95% (9/9 flows pass; 1 medium UX bug)"},
+  "seed_data_creation": "Created through the UI: banner BNR-10007 'TEST_ Tenant Banner' (tenant, restored as inactive); notification campaigns NTC-10001 (2 selected owners) and NTC-10002 (all 42 owners, scheduled 25 Dec 2026); coupon TESTMULTI2. Changed seeded records: complaint CMP-10008 set to resolved; leaving LVR-10022 approved and move-out set to scheduled; settings agreement fee for Flat/Apartment changed 99->106 and back to 99 (settings version is now 3).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Login testids: login-email-input, login-password-input, login-submit-button. DataTable rows use {testid||entity}-row-{id}. Complaint tables use complaints-owner/tenant. The e-Sign 'no provider configured' toast is expected. Agreement AGR-10051 is pending_signature with an approved payment (good for e-Sign tests). Fee inputs: setting-agreement-fee-0..12.",
+  "rca of the issue": "Stale picker selection: FormDialog keeps vals.eligible_ids across eligibility changes. UserPicker is keyed by user type, so the search list resets but the value array is not cleared. Mitigation: in the FormDialog onChange for eligibility (or a useEffect in UserPicker on type change), call onChange([]). When single, call onChange(value.slice(-1))."
+}

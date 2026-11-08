@@ -1,6 +1,7 @@
 import os
 import asyncio
 import hashlib
+import hmac
 import json
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
@@ -148,3 +149,33 @@ def require_reason(reason):
     if not reason or not str(reason).strip():
         raise HTTPException(400, "Reason is required")
     return reason.strip()
+
+
+GST_RATE_DEFAULT = 18
+FEE_CATEGORIES = ["PG – Boys", "PG – Girls", "PG – Co-living/Mixed", "Flat/Apartment", "Independent House", "Office", "Shop",
+                  "Chawl", "Godown", "Shed", "Warehouse", "Open Space/Land", "Other"]
+SYSTEM_ACTOR = {"id": "system", "email": "esign-provider", "name": "e-Sign Provider", "ip": ""}
+
+
+def gst_split(total, rate=GST_RATE_DEFAULT):
+    total = round(float(total or 0), 2)
+    base = round(total / (1 + rate / 100), 2)
+    return {"total_received": total, "base_amount": base, "gst_amount": round(total - base, 2), "total": total, "gst_rate": rate}
+
+
+def fee_category(prop):
+    if prop.get("category") == "PG":
+        return {"Boys": "PG – Boys", "Girls": "PG – Girls"}.get(prop.get("pg_gender"), "PG – Co-living/Mixed")
+    t = prop.get("type")
+    if t in ("Flat", "Apartment"):
+        return "Flat/Apartment"
+    if t == "Open Space":
+        return "Open Space/Land"
+    return t if t in FEE_CATEGORIES else "Other"
+
+
+async def require_app(request: Request):
+    key = request.headers.get("X-App-Key", "")
+    if not key or not hmac.compare_digest(key, os.environ["APP_API_KEY"]):
+        raise HTTPException(401, "Invalid app key")
+    return {"id": "app", "email": "owner/tenant-app", "name": "PA App", "ip": request.client.host if request.client else ""}
