@@ -37,3 +37,8 @@ Test each updated workflow with actual backend data. No dummy buttons.
 # Round 3: Firebase connection (user's words)
 "Connect this admin panel to Firebase project new-accounting-b2d50 using the credentials in Secrets (FIREBASE_PROJECT_ID, FIREBASE_STORAGE_BUCKET, FIREBASE_CLIENT_EMAIL, FIREBASE_SERVICE_ACCOUNT_JSON). Read owner registrations, tenant registrations, properties, agreements, payments and complaints from Firestore collections: users, properties, units, rental_accounts, agreements, payments, complaints, leaving_requests, notifications. When a new owner or tenant registers in the mobile app (backend at FIREBASE_MOBILE_APP_URL), their data must automatically appear in this admin panel via Firestore in real time. Do not use dummy or static data."
 Notes: keys are saved in backend Secrets (also FIREBASE_MOBILE_APP_URL). Inspect the real Firestore schema before mapping. Sample/seed data must not be mixed with real data; real Firestore data replaces it. Keep audit/archive/no-hard-delete guarantees. Also first: read /app/test_reports/iteration_2.json and fix anything it found from Round 2.
+
+---
+# Round 4: Deployment package (user's words)
+"Prepare this app for deployment on an external Ubuntu 22.04 VPS (Hostinger). Create a deployment package with: a Dockerfile, a docker-compose.yml, an Nginx config to serve the admin panel at propertysavailable.com/admin and the backend API at propertysavailable.com/api, and a deploy.sh script that installs Docker, pulls the image, and starts the container. Do not change any app logic or Firebase config. Do not deploy anywhere."
+Note: Round 3 (Firestore mapping + live sync) is paused waiting on user decisions; do not change it in this round.

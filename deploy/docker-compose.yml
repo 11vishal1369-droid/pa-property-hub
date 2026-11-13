@@ -1,0 +1,48 @@
+name: pa-admin
+
+services:
+  mongo:
+    image: mongo:7.0
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    image: ${BACKEND_IMAGE:-pa-admin-backend:latest}
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: backend
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      mongo:
+        condition: service_healthy
+    expose:
+      - "8001"
+
+  web:
+    image: ${WEB_IMAGE:-pa-admin-web:latest}
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: web
+      args:
+        REACT_APP_BACKEND_URL: ${PUBLIC_BASE_URL:-https://propertysavailable.com}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+
+volumes:
+  mongo-data:

@@ -13,7 +13,8 @@ api.interceptors.response.use(
   (e) => {
     if (e.response?.status === 401 && !e.config.url.includes("/auth/login")) {
       localStorage.removeItem("pa_token");
-      if (window.location.pathname !== "/login") window.location.href = "/login";
+      const login = `${process.env.PUBLIC_URL || ""}/login`;
+      if (window.location.pathname !== login) window.location.href = login;
     }
     return Promise.reject(e);
   }
