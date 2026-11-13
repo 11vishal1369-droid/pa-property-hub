@@ -8,7 +8,7 @@ import pytest
 from dotenv import load_dotenv
 
 load_dotenv(os.path.join(os.path.dirname(__file__), "..", ".env"))
-API = "http://localhost:8001/api"
+API = os.environ["TEST_API"]
 APPH = {"X-App-Key": os.environ["APP_API_KEY"]}
 HOOK_SECRET = "mock-webhook-secret"
 

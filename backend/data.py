@@ -5,13 +5,14 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from core import db, clean, audit, current_admin, LEVELS, now_iso, require_reason, gst_split, GST_RATE_DEFAULT, fee_category
 from exports import export_response
+import firebase_sync
 
 router = APIRouter(prefix="/api/data")
 
 STD_STATUS = ["active", "blocked", "suspended", "deactivated", "archived"]
 
 ENTITIES = {
-    "owners": dict(module="owners", search=["id", "name", "mobile", "email"], filters=["status", "gender", "subscription_status", "city"],
+    "owners": dict(module="owners", search=["id", "code", "name", "mobile", "email"], filters=["status", "gender", "subscription_status", "city"],
                    archivable=True, statuses=STD_STATUS, editable=["name", "gender", "dob", "mobile", "email", "address", "city", "photo"],
                    columns=[("id", "Owner ID"), ("name", "Name"), ("gender", "Gender"), ("dob", "DOB"), ("mobile", "Mobile"),
                             ("email", "Email"), ("created_at", "Registered"), ("status", "Status"), ("property_count", "Properties"),
@@ -19,7 +20,7 @@ ENTITIES = {
                             ("tenant_count", "Tenants"), ("agreement_count", "Agreements"), ("subscription_status", "Subscription"),
                             ("subscription_start", "Sub Start"), ("subscription_expiry", "Sub Expiry"), ("fees_paid", "Fees Paid"),
                             ("outstanding", "Outstanding")]),
-    "tenants": dict(module="tenants", search=["id", "name", "mobile", "email"], filters=["status", "gender", "aadhaar_status", "property_id", "owner_id"],
+    "tenants": dict(module="tenants", search=["id", "code", "rental_code", "name", "mobile", "email"], filters=["status", "gender", "aadhaar_status", "property_id", "owner_id"],
                     archivable=True, statuses=STD_STATUS,
                     editable=["name", "gender", "dob", "mobile", "email", "father_name", "mother_name", "permanent_address",
                               "current_address", "occupation", "emergency_contact_name", "emergency_contact_phone", "room", "rent", "deposit"],
@@ -28,21 +29,21 @@ ENTITIES = {
                              ("join_date", "Joined"), ("leave_date", "Left"), ("rent", "Rent"), ("deposit", "Deposit"),
                              ("agreement_status", "Agreement"), ("aadhaar_masked", "Aadhaar"), ("aadhaar_status", "Aadhaar Status"),
                              ("status", "Status")]),
-    "properties": dict(module="properties", search=["id", "name", "address", "city"], filters=["status", "category", "type", "owner_id", "city"],
+    "properties": dict(module="properties", search=["id", "code", "name", "address", "city"], filters=["status", "category", "type", "owner_id", "city"],
                        archivable=True, statuses=["active", "inactive", "blocked", "deactivated", "closed", "archived"],
                        editable=["name", "category", "type", "pg_gender", "address", "city", "rent", "deposit", "total_units"],
                        columns=[("id", "Property ID"), ("name", "Name"), ("owner_name", "Owner"), ("category", "Category"),
                                 ("type", "Type"), ("address", "Address"), ("city", "City"), ("total_units", "Units"),
                                 ("occupied_units", "Occupied"), ("rent", "Rent"), ("deposit", "Deposit"), ("status", "Status"),
                                 ("created_at", "Created")]),
-    "agreements": dict(module="agreements", search=["id", "category"], filters=["status", "category", "owner_id", "tenant_id", "property_id"],
+    "agreements": dict(module="agreements", search=["id", "code", "category"], filters=["status", "category", "owner_id", "tenant_id", "property_id"],
                        archivable=True, statuses=["draft", "pending_signature", "completed", "cancelled", "expired", "archived"],
                        manual_statuses=["cancelled", "expired", "archived"], editable=["start_date", "end_date", "rent", "deposit"],
                        columns=[("id", "Agreement ID"), ("category", "Category"), ("owner_name", "Owner"), ("tenant_name", "Tenant"),
                                 ("property_name", "Property"), ("fee", "Fee"), ("coupon_code", "Coupon"), ("discount", "Discount"),
                                 ("fee_paid", "Paid"), ("owner_esign", "Owner e-Sign"), ("tenant_esign", "Tenant e-Sign"), ("status", "Status"), ("current_version", "Version"), ("start_date", "Start"),
                                 ("end_date", "End"), ("created_at", "Created")]),
-    "payments": dict(module="finance", search=["id", "txn_ref", "receipt_no"], filters=["status", "method", "purpose", "owner_id", "tenant_id"],
+    "payments": dict(module="finance", search=["id", "code", "txn_ref", "receipt_no"], filters=["status", "method", "purpose", "owner_id", "tenant_id"],
                      archivable=False, statuses=[], editable=[],
                      columns=[("id", "Payment ID"), ("txn_ref", "Txn Ref"), ("receipt_no", "Receipt"), ("purpose", "Purpose"),
                               ("owner_name", "Owner"), ("tenant_name", "Tenant"), ("total_received", "Total Received"), ("base_amount", "Base Amount"),
@@ -61,7 +62,7 @@ ENTITIES = {
                              ("max_discount", "Max Disc"), ("min_amount", "Min Amt"), ("applies_to", "Applies To"), ("eligibility", "Eligibility"), ("eligible_ids", "Eligible Users"),
                              ("start_date", "Start"), ("end_date", "End"), ("used_count", "Used"), ("max_usage", "Max Use"),
                              ("status", "Status")]),
-    "complaints": dict(module="complaints", search=["id", "subject"], filters=["status", "priority", "category", "assigned_to", "owner_id", "tenant_id", "property_id", "raised_by"],
+    "complaints": dict(module="complaints", search=["id", "code", "subject"], filters=["status", "priority", "category", "assigned_to", "owner_id", "tenant_id", "property_id", "raised_by"],
                        archivable=False, statuses=["open", "in_progress", "escalated", "resolved", "closed", "reopened"], editable=["subject", "priority", "category"],
                        columns=[("id", "Complaint ID"), ("subject", "Subject"), ("category", "Category"), ("priority", "Priority"),
                                 ("raised_by", "Raised By"), ("tenant_name", "Tenant"), ("owner_name", "Owner"), ("property_name", "Property"),
@@ -344,6 +345,8 @@ async def edit_entity(entity: str, rid: str, body: EditIn, admin=Depends(current
     entry = {"at": now_iso(), "by": admin["email"], "action": "edit", "old": old, "new": changes, "reason": reason}
     await audit(admin, "edit", cfg["module"], rid, old, changes, reason)
     await db[entity].update_one({"id": rid}, {"$set": {**changes, "updated_at": now_iso()}, "$push": {"history": entry}})
+    if entity in firebase_sync.WRITEBACK:
+        await firebase_sync.push(entity, [rid])
     return clean(await db[entity].find_one({"id": rid}))
 
 
@@ -376,6 +379,8 @@ async def change_status(entity: str, rid: str, body: StatusIn, admin=Depends(cur
     entry = {"at": now_iso(), "by": admin["email"], "action": "status", "old": old, "new": body.status, "reason": reason}
     await audit(admin, "archive" if body.status == "archived" else "status_change", cfg["module"], rid, {"status": old}, {"status": body.status}, reason)
     await db[entity].update_one({"id": rid}, {"$set": upd, "$push": {"status_history": entry}})
+    if entity in firebase_sync.WRITEBACK:
+        await firebase_sync.push(entity, [rid])
     return clean(await db[entity].find_one({"id": rid}))
 
 

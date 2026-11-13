@@ -13,6 +13,7 @@ from core import (db, clean, audit, require, require_app, now_iso, require_reaso
                   FEE_CATEGORIES, SYSTEM_ACTOR, GST_RATE_DEFAULT)
 from data import enrich
 from exports import pdf_bytes
+import firebase_sync
 from ops_routes import (must, agreement_full, agreement_lines, evaluate_coupon, leaving_transition, leaving_field)
 
 router = APIRouter(prefix="/api")
@@ -193,6 +194,7 @@ async def send_notifications(body: SendIn, admin=Depends(require("notifications"
     await db.notifications.insert_many([{"id": nid, "campaign_id": cid, "recipient_id": u["id"], "recipient_name": u["name"], "recipient_type": body.audience,
                                          "type": "announcement", "channel": "in_app", "title": camp["title"], "message": camp["message"],
                                          "scheduled_at": camp["scheduled_at"], "status": status, "created_at": now_iso()} for nid, u in zip(ids, users)])
+    await firebase_sync.push("notifications", ids)
     return clean(camp)
 
 

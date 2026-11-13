@@ -8,7 +8,7 @@ import { PageHeader, Timeline } from "../components/Common";
 import { StatusBadge } from "../components/StatusBadge";
 import { useDialog } from "../components/FormDialog";
 import { useAuth } from "../context/AuthContext";
-import { api, errMsg, fmtDateTime, inr, label, openPdf } from "../lib/api";
+import { api, errMsg, fmtDateTime, inr, label, openPdf, dispId } from "../lib/api";
 
 const ICON = "h-7 w-7";
 
@@ -63,7 +63,7 @@ export default function Finance() {
       <DataTable entity="payments" refreshKey={key}
         filters={[{ key: "status", label: "Status", options: ["success", "pending", "approved", "rejected", "failed", "refunded", "partially_refunded"] },
           { key: "method", label: "Method", options: ["online", "manual"] }, { key: "purpose", label: "Purpose", options: ["platform_fee", "agreement_fee", "rent"] }]}
-        columns={[{ key: "id", label: "Payment ID", render: (r) => <span className="tabular text-xs text-[#1E3A8A]">{r.id}</span> }, { key: "txn_ref", label: "Txn ref", render: (r) => <span className="tabular text-xs">{r.txn_ref}</span> },
+        columns={[{ key: "id", label: "Payment ID", render: (r) => <span className="tabular text-xs text-[#1E3A8A]">{dispId(r)}</span> }, { key: "txn_ref", label: "Txn ref", render: (r) => <span className="tabular text-xs">{r.txn_ref}</span> },
           { key: "purpose", label: "Purpose", render: (r) => label(r.purpose) }, { key: "owner_name", label: "Owner", sortable: false }, { key: "tenant_name", label: "Tenant", sortable: false },
           { key: "amount", label: "Total received", render: (r) => <span className="tabular">{inr(r.total_received)}</span> },
           { key: "base_amount", label: "Base", sortable: false, render: (r) => <span className="tabular">{inr(r.base_amount)}</span> },

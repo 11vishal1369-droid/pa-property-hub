@@ -6,8 +6,7 @@ import concurrent.futures as cf
 import pytest
 import requests
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL').rstrip('/')
-API = f"{BASE_URL}/api"
+API = os.environ["TEST_API"]
 UID = uuid.uuid4().hex[:6].upper()
 
 

@@ -2,7 +2,7 @@ import asyncio
 import os
 import httpx
 
-API = os.environ.get("API", "http://localhost:8001/api")
+API = os.environ["TEST_API"]
 
 
 async def tok(c, email, pw):

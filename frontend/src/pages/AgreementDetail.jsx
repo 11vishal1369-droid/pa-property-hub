@@ -9,7 +9,7 @@ import { RecordControls } from "../components/RecordControls";
 import { useDialog } from "../components/FormDialog";
 import { useProfile, BackButton, ProfileTabs, ActivityPanel } from "../components/Profile";
 import { useAuth } from "../context/AuthContext";
-import { api, download, errMsg, fmtDate, fmtDateTime, inr, label } from "../lib/api";
+import { api, download, errMsg, fmtDate, fmtDateTime, inr, label, dispId } from "../lib/api";
 import { payCols } from "./OwnerDetail";
 
 const path = (id) => `/agreements/${id}/detail`;
@@ -72,7 +72,7 @@ export default function AgreementDetail() {
     <div data-testid="agreement-detail">
       {dialog}
       <BackButton />
-      <PageHeader title={`Agreement ${a.id}`} subtitle={<span className="flex items-center gap-2">{a.category} <StatusBadge value={a.status} testid="agreement-status" /></span>}>
+      <PageHeader title={`Agreement ${dispId(a)}`} subtitle={<span className="flex items-center gap-2">{a.category} <StatusBadge value={a.status} testid="agreement-status" /></span>}>
         <Button size="sm" variant="outline" onClick={() => dl(a.current_version)} data-testid="download-agreement-button"><Download className="mr-1.5 h-3.5 w-3.5" />Download agreement</Button>
         {editable && unsigned && a.status !== "completed" && <Button size="sm" variant="outline" onClick={newVersion} data-testid="new-version-button"><FilePlus2 className="mr-1.5 h-3.5 w-3.5" />New version</Button>}
         <RecordControls entity="agreements" module="agreements" record={a} statuses={["cancelled", "expired"]} editFields={EDIT} onDone={load} />
@@ -83,10 +83,10 @@ export default function AgreementDetail() {
       <ProfileTabs tabs={[
         ["overview", "Overview", <div className="space-y-4">
           <div className="grid gap-4 lg:grid-cols-2">
-            <Section title="Owner details"><KV cols={2} items={[["Owner ID", link(`/owners/${o.id}`, o.id)], ["Name", o.name], ["Mobile", o.mobile], ["Email", o.email], ["Address", o.address]]} /></Section>
-            <Section title="Tenant details"><KV cols={2} items={[["Tenant ID", link(`/tenants/${t.id}`, t.id)], ["Name", t.name], ["Mobile", t.mobile], ["Email", t.email], ["Room/Bed", t.room]]} /></Section>
+            <Section title="Owner details"><KV cols={2} items={[["Owner ID", link(`/owners/${o.id}`, dispId(o))], ["Name", o.name], ["Mobile", o.mobile], ["Email", o.email], ["Address", o.address]]} /></Section>
+            <Section title="Tenant details"><KV cols={2} items={[["Tenant ID", link(`/tenants/${t.id}`, dispId(t))], ["Name", t.name], ["Mobile", t.mobile], ["Email", t.email], ["Room/Bed", t.room]]} /></Section>
           </div>
-          <Section title="Property & term"><KV items={[["Property ID", link(`/properties/${p.id}`, p.id)], ["Property", p.name], ["Property category", p.fee_category],
+          <Section title="Property & term"><KV items={[["Property ID", link(`/properties/${p.id}`, dispId(p))], ["Property", p.name], ["Property category", p.fee_category],
             ["Address", `${p.address || ""}, ${p.city || ""}`], ["Term", `${fmtDate(a.start_date)} → ${fmtDate(a.end_date)}`], ["Rent / Deposit", `${inr(a.rent)} / ${inr(a.deposit)}`]]} /></Section>
           <Section title="Fee & payment"><KV items={[["Agreement fee", inr(a.fee)], ["Coupon discount", a.discount ? `${inr(a.discount)} (${a.coupon_code})` : inr(0)],
             ["Final amount paid", pay ? inr(pay.total_received) : "Not paid"], ["Base amount", pay && inr(pay.base_amount)], [`GST (${pay?.gst_rate ?? 18}%, inclusive)`, pay && inr(pay.gst_amount)],

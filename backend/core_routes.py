@@ -288,7 +288,7 @@ async def dashboard(range: str = "all", frm: Optional[str] = None, to: Optional[
         "agreements_completed": await c("agreements", {"status": "completed"}),
         "agreement_fees": agr_fee["t"], "subscription_fees": sub_fee["t"], "coupon_discounts": disc["d"],
         "online_payments": online["t"], "manual_submissions": manual_count,
-        "pending_approvals": await c("payments", {"method": "manual", "status": "pending"}),
+        "pending_approvals": await c("payments", {"status": "pending", "method": {"$ne": "online"}}),
         "complaints_total": await c("complaints"), "complaints_pending": await c("complaints", {"status": {"$in": ["open", "in_progress", "escalated", "reopened"]}}),
         "leaving_pending": await c("leaving", {"status": "pending"}),
         "refunds_settlements": (refunds[0]["t"] if refunds else 0) + (settle[0]["t"] if settle else 0),
@@ -301,10 +301,10 @@ async def dashboard(range: str = "all", frm: Optional[str] = None, to: Optional[
             "payment_status": [{"status": x["_id"], "count": x["n"]} for x in status_mix], "recent_activity": recent}
 
 
-SEARCH_SPACES = [("owners", "owners", ["id", "name", "mobile", "email"]), ("tenants", "tenants", ["id", "name", "mobile", "email"]),
-                 ("properties", "properties", ["id", "name", "address", "city"]), ("agreements", "agreements", ["id", "category"]),
-                 ("payments", "finance", ["id", "txn_ref", "receipt_no"]), ("complaints", "complaints", ["id", "subject"]),
-                 ("leaving", "leaving", ["id"])]
+SEARCH_SPACES = [("owners", "owners", ["id", "code", "name", "mobile", "email"]), ("tenants", "tenants", ["id", "code", "rental_code", "name", "mobile", "email"]),
+                 ("properties", "properties", ["id", "code", "name", "address", "city"]), ("agreements", "agreements", ["id", "code", "category"]),
+                 ("payments", "finance", ["id", "code", "txn_ref", "receipt_no"]), ("complaints", "complaints", ["id", "code", "subject"]),
+                 ("leaving", "leaving", ["id", "code"])]
 
 
 @router.get("/search")

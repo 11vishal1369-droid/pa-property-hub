@@ -8,7 +8,7 @@ import { RecordControls } from "../components/RecordControls";
 import { useDialog } from "../components/FormDialog";
 import { useProfile, BackButton, ProfileTabs, ActivityPanel } from "../components/Profile";
 import { useAuth } from "../context/AuthContext";
-import { api, fmtDate, fmtDateTime, inr } from "../lib/api";
+import { api, fmtDate, fmtDateTime, inr, dispId } from "../lib/api";
 import { payCols, agrCols } from "./OwnerDetail";
 import { PROP_TYPES } from "./Directories";
 
@@ -53,7 +53,7 @@ export default function PropertyDetail() {
   return (
     <div data-testid="property-profile">
       <BackButton />
-      <PageHeader title={p.name} subtitle={<span className="flex items-center gap-2"><span className="tabular">{p.id}</span> · {p.category} / {p.type} · {p.city} <StatusBadge value={p.status} testid="property-status" /></span>}>
+      <PageHeader title={p.name} subtitle={<span className="flex items-center gap-2"><span className="tabular">{dispId(p)}</span> · {p.category} / {p.type} · {p.city} <StatusBadge value={p.status} testid="property-status" /></span>}>
         <RecordControls entity="properties" module="properties" record={p} statuses={["active", "inactive", "blocked", "deactivated", "closed"]} editFields={EDIT} onDone={load} />
       </PageHeader>
       <ProfileTabs tabs={[

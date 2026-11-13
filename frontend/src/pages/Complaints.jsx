@@ -8,7 +8,7 @@ import { PageHeader, KV, Timeline } from "../components/Common";
 import { StatusBadge } from "../components/StatusBadge";
 import { useDialog } from "../components/FormDialog";
 import { useAuth } from "../context/AuthContext";
-import { api, fmtDateTime, label } from "../lib/api";
+import { api, fmtDateTime, label, dispId } from "../lib/api";
 
 const STATUSES = ["open", "in_progress", "escalated", "resolved", "closed", "reopened"];
 
@@ -40,7 +40,7 @@ export default function Complaints() {
       <DataTable key={tab} entity="complaints" testid={`complaints-${tab}`} baseParams={{ raised_by: tab }} refreshKey={key} onRowClick={setSel}
         filters={[{ key: "status", label: "Status", options: STATUSES }, { key: "priority", label: "Priority", options: ["low", "medium", "high", "urgent"] },
           { key: "category", label: "Category", options: ["Maintenance", "Amenities", "Payment", "Behaviour", "Agreement"] }]}
-        columns={[{ key: "id", label: "ID", render: (r) => <span className="tabular text-xs text-[#1E3A8A]">{r.id}</span> }, { key: "subject", label: "Subject" }, { key: "category", label: "Category" },
+        columns={[{ key: "id", label: "ID", render: (r) => <span className="tabular text-xs text-[#1E3A8A]">{dispId(r)}</span> }, { key: "subject", label: "Subject" }, { key: "category", label: "Category" },
           { key: "priority", label: "Priority", render: (r) => <StatusBadge value={r.priority} /> }, { key: "raised_by", label: "By", render: (r) => label(r.raised_by) },
           { key: "tenant_name", label: "Tenant", sortable: false }, { key: "property_name", label: "Property", sortable: false },
           { key: "assigned_to_name", label: "Assigned", sortable: false, render: (r) => r.assigned_to_name || <span className="text-slate-400">Unassigned</span> },

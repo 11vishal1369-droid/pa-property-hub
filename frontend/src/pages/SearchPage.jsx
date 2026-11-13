@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { PageHeader } from "../components/Common";
 import { StatusBadge } from "../components/StatusBadge";
-import { api, fmtDate, label } from "../lib/api";
+import { api, fmtDate, label, dispId } from "../lib/api";
 
 const LINK = { owners: "/owners/", tenants: "/tenants/", properties: "/properties/", agreements: "/agreements/", payments: "/finance", complaints: "/complaints", leaving: "/leaving" };
 const desc = (k, r) => ({ owners: `${r.mobile} · ${r.email}`, tenants: `${r.mobile} · ${r.email}`, properties: `${r.type} · ${r.address}, ${r.city}`,
@@ -27,7 +27,7 @@ export default function SearchPage() {
                 {rows.map((r) => (
                   <button key={r.id} onClick={() => nav(LINK[k].endsWith("/") ? LINK[k] + r.id : LINK[k])} data-testid={`search-result-${r.id}`}
                     className="flex w-full flex-wrap items-center gap-3 px-4 py-3 text-left hover:bg-blue-50/40">
-                    <span className="tabular text-xs text-[#1E3A8A]">{r.id}</span><span className="font-medium text-slate-900">{r.name || r.subject || r.category || r.txn_ref}</span>
+                    <span className="tabular text-xs text-[#1E3A8A]">{dispId(r)}</span><span className="font-medium text-slate-900">{r.name || r.subject || r.category || r.txn_ref}</span>
                     <span className="text-sm text-slate-500">{desc(k, r)}</span><span className="ml-auto"><StatusBadge value={r.status} /></span>
                   </button>
                 ))}

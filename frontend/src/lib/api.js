@@ -64,3 +64,5 @@ export const inr = (v) => (v == null ? "—" : `₹${Number(v).toLocaleString("e
 export const fmtDate = (v) => (v ? new Date(v.length <= 10 ? v + "T00:00:00" : v).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—");
 export const fmtDateTime = (v) => (v ? new Date(v).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "—");
 export const label = (s) => (s ? String(s).replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "—");
+export const dispId = (r) => (r && (r.code || r.id)) || "—";
+export const roomLabel = (room) => (!room ? "—" : /^room\b/i.test(room) ? room : `Room ${room}`);

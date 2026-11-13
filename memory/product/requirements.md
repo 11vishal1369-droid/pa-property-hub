@@ -42,3 +42,11 @@ Notes: keys are saved in backend Secrets (also FIREBASE_MOBILE_APP_URL). Inspect
 # Round 4: Deployment package (user's words)
 "Prepare this app for deployment on an external Ubuntu 22.04 VPS (Hostinger). Create a deployment package with: a Dockerfile, a docker-compose.yml, an Nginx config to serve the admin panel at propertysavailable.com/admin and the backend API at propertysavailable.com/api, and a deploy.sh script that installs Docker, pulls the image, and starts the container. Do not change any app logic or Firebase config. Do not deploy anywhere."
 Note: Round 3 (Firestore mapping + live sync) is paused waiting on user decisions; do not change it in this round.
+
+---
+# Round 3 resumed: user decisions
+- Firestore data: "Show it as-is, real registrations will add to it" (treat current Firestore records as the app's data, no test labels).
+- Banners, coupons, notifications: admin panel manages "The app's Firebase ones, so changes show in the app directly" (read/write the app's Firestore collections banners, coupons, notifications).
+- Mobile backend: no answer; default = read Firestore directly, no dependency on propertysavailable.com/api.
+- Deployment: "Yes, the panel's backend should use /api" (keep Nginx /api -> admin backend).
+Build the Firestore mapping and real-time sync, remove sample data once real data loads, keep audit/archive/no-hard-delete/Aadhaar masking. Retest.

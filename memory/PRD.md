@@ -28,3 +28,13 @@ Build the PA Super Admin Panel described in /app/memory/product/requirements.md 
 ## Backlog
 - P1: Integration with the existing Owner/Tenant app backend; a real payment provider; object storage for photos and documents.
 - P2: Paging for global search results; Owner ID lookup in the manual-payment dialog; shadcn date pickers; broken-image placeholder on banners.
+
+
+## Round 3 resumed + fixes (Nov 2026)
+- The panel shows the app's real Firestore data, with live sync from the app. Banners, coupons and notifications are written back to the app's Firestore. Sample data was removed once.
+- Readable codes (OWN/TEN/PROP/RENT/AGR/CMP/LEAVE) are shown and searchable.
+- Dashboard "Pending approvals" counts pending rent and deposit payments; gateway-pending fees are excluded.
+- The owner's subscription shows the current period start and the latest expiry (stacked renewals).
+- Sync applies changes in bulk with cached lookups.
+- Tests run against an isolated server (pa_regression database, port 8123) with Firebase disabled. Firestore is faked in test_firestore_sync.py. 69 tests pass.
+- Backlog: panel edits to owners, tenants and other app records don't reach the app (one-way by design).

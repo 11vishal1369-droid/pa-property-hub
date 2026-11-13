@@ -8,7 +8,7 @@ import { PageHeader, KV, Timeline } from "../components/Common";
 import { StatusBadge } from "../components/StatusBadge";
 import { useDialog } from "../components/FormDialog";
 import { useAuth } from "../context/AuthContext";
-import { api, fmtDate, fmtDateTime, inr, label } from "../lib/api";
+import { api, fmtDate, fmtDateTime, inr, label, dispId } from "../lib/api";
 
 const NUMS = [["outstanding_rent", "Outstanding rent"], ["utilities", "Utilities"], ["other_charges", "Other charges"], ["damage", "Damage"]];
 const MOVE_OUT = ["not_started", "scheduled", "in_progress", "completed"];
@@ -42,7 +42,7 @@ export default function Leaving() {
       <DataTable entity="leaving" refreshKey={key} onRowClick={setSel}
         filters={[{ key: "status", label: "Approval", options: ["pending", "approved", "rejected", "completed"] }, { key: "requested_by", label: "Requested by", options: ["tenant", "owner"] },
           { key: "move_out_status", label: "Move-out", options: MOVE_OUT }, { key: "settlement_status", label: "Settlement", options: SETTLE }]}
-        columns={[{ key: "id", label: "Request", render: (r) => <span className="tabular text-xs text-[#1E3A8A]">{r.id}</span> },
+        columns={[{ key: "id", label: "Request", render: (r) => <span className="tabular text-xs text-[#1E3A8A]">{dispId(r)}</span> },
           { key: "requested_by", label: "Requested by", render: (r) => label(r.requested_by) }, { key: "tenant_name", label: "Tenant", sortable: false },
           { key: "owner_name", label: "Owner", sortable: false }, { key: "property_name", label: "Property", sortable: false, render: (r) => `${r.property_name} · ${r.room || "—"}` },
           { key: "requested_leave_date", label: "Leave date", render: (r) => fmtDate(r.requested_leave_date) },
@@ -57,7 +57,7 @@ export default function Leaving() {
       <Sheet open={!!sel} onOpenChange={(o) => !o && setSel(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-xl" data-testid="leaving-sheet">
           {sel && (<>
-            <SheetHeader><SheetTitle className="font-heading">{sel.id} · {sel.tenant_name}</SheetTitle></SheetHeader>
+            <SheetHeader><SheetTitle className="font-heading">{dispId(sel)} · {sel.tenant_name}</SheetTitle></SheetHeader>
             <div className="mt-2 flex gap-2"><StatusBadge value={sel.status} testid="leaving-status" /><StatusBadge value={sel.move_out_status} testid="leaving-moveout-status" /><StatusBadge value={sel.settlement_status} testid="leaving-settlement-status" /></div>
             <div className="mt-5"><KV cols={2} items={[["Requested by", `${label(sel.requested_by)}${sel.requested_by_name ? ` · ${sel.requested_by_name}` : ""}`], ["Tenant", sel.tenant_name],
               ["Owner", sel.owner_name], ["Property · Bed/Room/Seat", `${sel.property_name} · ${sel.room || "—"}`], ["Requested leaving date", fmtDate(sel.requested_leave_date)],

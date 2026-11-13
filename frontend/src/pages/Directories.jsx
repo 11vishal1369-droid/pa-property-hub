@@ -2,12 +2,12 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { DataTable } from "../components/DataTable";
 import { PageHeader, Avatar } from "../components/Common";
 import { StatusBadge } from "../components/StatusBadge";
-import { fmtDate, inr } from "../lib/api";
+import { fmtDate, inr, dispId } from "../lib/api";
 
 const STD = ["active", "blocked", "suspended", "deactivated", "archived"];
 export const PROP_TYPES = ["PG", "Flat", "Apartment", "Independent House", "Office", "Chawl", "Shop", "Godown", "Shed", "Warehouse", "Open Space", "Other"];
 const nameCell = (r) => <div className="flex items-center gap-2.5"><Avatar name={r.name} src={r.photo} size="h-7 w-7" /><span className="font-medium text-slate-900">{r.name}</span></div>;
-const idCell = (r) => <span className="tabular text-xs text-[#1E3A8A]">{r.id}</span>;
+const idCell = (r) => <span className="tabular text-xs text-[#1E3A8A]">{dispId(r)}</span>;
 const useInitialFilter = () => {
   const [sp] = useSearchParams();
   return sp.get("status") ? { status: sp.get("status") } : {};
@@ -46,10 +46,10 @@ export function TenantsList() {
           { key: "aadhaar_status", label: "Aadhaar", options: ["verified", "pending", "failed"] }]}
         columns={[{ key: "id", label: "Tenant ID", render: idCell }, { key: "name", label: "Name", render: nameCell }, { key: "gender", label: "Gender" },
           { key: "mobile", label: "Mobile" }, { key: "property_name", label: "Property", sortable: false }, { key: "owner_name", label: "Owner", sortable: false },
-          { key: "room", label: "Room/Bed" }, { key: "join_date", label: "Joined", render: (r) => fmtDate(r.join_date) },
+          { key: "rental_code", label: "Rental ID", render: (r) => <span className="tabular text-xs">{r.rental_code || "—"}</span> }, { key: "room", label: "Room/Bed" }, { key: "join_date", label: "Joined", render: (r) => fmtDate(r.join_date) },
           { key: "leave_date", label: "Left", render: (r) => fmtDate(r.leave_date) }, { key: "rent", label: "Rent", render: (r) => inr(r.rent) },
           { key: "deposit", label: "Deposit", render: (r) => inr(r.deposit) }, { key: "agreement_status", label: "Agreement", render: (r) => r.agreement_status ? <StatusBadge value={r.agreement_status} /> : "—" },
-          { key: "aadhaar_masked", label: "Aadhaar", sortable: false, render: (r) => <span className="tabular text-xs">{r.aadhaar_masked}</span> },
+          { key: "aadhaar_masked", label: "Aadhaar", sortable: false, render: (r) => r.aadhaar_masked ? <span className="tabular text-xs">{r.aadhaar_masked}</span> : <span className="text-xs text-slate-400">Not provided</span> },
           { key: "aadhaar_status", label: "Aadhaar status", render: (r) => <StatusBadge value={r.aadhaar_status} /> },
           { key: "status", label: "Account", render: (r) => <StatusBadge value={r.status} /> }]} />
     </div>

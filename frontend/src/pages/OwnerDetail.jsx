@@ -3,7 +3,7 @@ import { PageHeader, KV, MiniTable, Section, Avatar } from "../components/Common
 import { StatusBadge } from "../components/StatusBadge";
 import { RecordControls } from "../components/RecordControls";
 import { useProfile, BackButton, ProfileTabs, ActivityPanel } from "../components/Profile";
-import { fmtDate, fmtDateTime, inr, label } from "../lib/api";
+import { fmtDate, fmtDateTime, inr, label, dispId } from "../lib/api";
 
 const path = (id) => `/owners/${id}/profile`;
 const EDIT = [["name", "Name"], ["gender", "Gender", "select", ["Male", "Female", "Other"]], ["dob", "Date of birth", "date"], ["mobile", "Mobile"],
@@ -26,7 +26,7 @@ export default function OwnerDetail() {
     <div data-testid="owner-profile">
       <BackButton />
       <PageHeader title={<span className="flex items-center gap-3"><Avatar name={o.name} src={o.photo} size="h-11 w-11" />{o.name}</span>}
-        subtitle={<span className="flex items-center gap-2"><span className="tabular">{o.id}</span> · Registered {fmtDate(o.created_at)} <StatusBadge value={o.status} testid="owner-status" /></span>}>
+        subtitle={<span className="flex items-center gap-2"><span className="tabular">{dispId(o)}</span> · Registered {fmtDate(o.created_at)} <StatusBadge value={o.status} testid="owner-status" /></span>}>
         <RecordControls entity="owners" module="owners" record={o} statuses={["active", "blocked", "suspended", "deactivated"]} editFields={EDIT} onDone={load} />
       </PageHeader>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
@@ -35,7 +35,7 @@ export default function OwnerDetail() {
         ))}
       </div>
       <ProfileTabs tabs={[
-        ["personal", "Personal", <Section title="Personal details"><KV items={[["Owner ID", o.id], ["Name", o.name], ["Gender", o.gender], ["Date of birth", fmtDate(o.dob)],
+        ["personal", "Personal", <Section title="Personal details"><KV items={[["Owner ID", dispId(o)], ["Name", o.name], ["Gender", o.gender], ["Date of birth", fmtDate(o.dob)],
           ["Mobile", o.mobile], ["Email", o.email], ["City", o.city], ["Address", o.address], ["Registered", fmtDateTime(o.created_at)],
           ["Archive reason", o.archive_reason]]} /></Section>],
         ["properties", `Properties (${data.properties.length})`, <MiniTable testid="owner-properties" rows={data.properties} onRowClick={(r) => nav(`/properties/${r.id}`)}

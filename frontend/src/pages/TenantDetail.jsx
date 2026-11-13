@@ -9,7 +9,7 @@ import { RecordControls } from "../components/RecordControls";
 import { useDialog } from "../components/FormDialog";
 import { useProfile, BackButton, ProfileTabs, ActivityPanel } from "../components/Profile";
 import { useAuth } from "../context/AuthContext";
-import { api, fmtDate, inr, label } from "../lib/api";
+import { api, fmtDate, inr, label, dispId, roomLabel } from "../lib/api";
 import { payCols, agrCols } from "./OwnerDetail";
 
 const path = (id) => `/tenants/${id}/profile`;
@@ -29,9 +29,9 @@ function Identity({ t }) {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       {dialog}
-      <Section title="Aadhaar" action={can("aadhaar") ? <Button size="sm" variant="outline" onClick={reveal} data-testid="reveal-aadhaar-button"><Eye className="mr-1.5 h-3.5 w-3.5" />View full</Button>
+      <Section title="Aadhaar" action={!t.aadhaar_masked ? null : can("aadhaar") ? <Button size="sm" variant="outline" onClick={reveal} data-testid="reveal-aadhaar-button"><Eye className="mr-1.5 h-3.5 w-3.5" />View full</Button>
         : <span className="flex items-center gap-1 text-xs text-slate-400"><Lock className="h-3 w-3" />Restricted</span>}>
-        <p className="tabular text-2xl tracking-widest text-slate-900" data-testid="aadhaar-value">{full || t.aadhaar_masked}</p>
+        <p className="tabular text-2xl tracking-widest text-slate-900" data-testid="aadhaar-value">{full || t.aadhaar_masked || <span className="text-base tracking-normal text-slate-400">Not provided</span>}</p>
         <div className="mt-3 flex items-center gap-2 text-sm text-slate-500">Verification: <StatusBadge value={t.aadhaar_status} /></div>
         <p className="mt-3 text-xs text-slate-400">Stored encrypted at rest. OTPs are never stored. Masked by default.</p>
       </Section>
@@ -53,11 +53,11 @@ export default function TenantDetail() {
     <div data-testid="tenant-profile">
       <BackButton />
       <PageHeader title={<span className="flex items-center gap-3"><Avatar name={t.name} src={t.photo} size="h-11 w-11" />{t.name}</span>}
-        subtitle={<span className="flex items-center gap-2"><span className="tabular">{t.id}</span> · {t.property_name} · Room {t.room} <StatusBadge value={t.status} testid="tenant-status" /></span>}>
+        subtitle={<span className="flex items-center gap-2"><span className="tabular">{dispId(t)}</span> · {t.property_name} · {roomLabel(t.room)} <StatusBadge value={t.status} testid="tenant-status" /></span>}>
         <RecordControls entity="tenants" module="tenants" record={t} statuses={["active", "blocked", "suspended", "deactivated"]} editFields={EDIT} onDone={load} />
       </PageHeader>
       <ProfileTabs tabs={[
-        ["personal", "Personal", <Section title="Personal details"><KV items={[["Tenant ID", t.id], ["Name", t.name], ["Gender", t.gender], ["Date of birth", fmtDate(t.dob)],
+        ["personal", "Personal", <Section title="Personal details"><KV items={[["Tenant ID", dispId(t)], ["Name", t.name], ["Gender", t.gender], ["Date of birth", fmtDate(t.dob)],
           ["Mobile", t.mobile], ["Email", t.email], ["Father's name", t.father_name], ["Mother's name", t.mother_name], ["Occupation", t.occupation],
           ["Permanent address", t.permanent_address], ["Current address", t.current_address], ["Emergency contact", `${t.emergency_contact_name || "—"} · ${t.emergency_contact_phone || ""}`],
           ["Owner", t.owner_name], ["Joined", fmtDate(t.join_date)], ["Left", fmtDate(t.leave_date)], ["Rent / Deposit", `${inr(t.rent)} / ${inr(t.deposit)}`]]} /></Section>],

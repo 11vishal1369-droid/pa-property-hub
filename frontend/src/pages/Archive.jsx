@@ -7,7 +7,7 @@ import { DataTable } from "../components/DataTable";
 import { PageHeader } from "../components/Common";
 import { useDialog } from "../components/FormDialog";
 import { useAuth } from "../context/AuthContext";
-import { api, fmtDateTime, label } from "../lib/api";
+import { api, fmtDateTime, label, dispId } from "../lib/api";
 
 const CATS = [["owners", "Owners"], ["tenants", "Tenants"], ["properties", "Properties"], ["agreements", "Agreements"]];
 
@@ -35,7 +35,7 @@ export default function ArchivePage() {
       </div>
       <DataTable key={cat} entity={cat} testid={`archive-${cat}`} baseParams={{ status: "archived" }} refreshKey={key}
         onRowClick={(r) => nav(`/${cat}/${r.id}`)}
-        columns={[{ key: "id", label: "ID", render: (r) => <span className="tabular text-xs text-[#1E3A8A]">{r.id}</span> },
+        columns={[{ key: "id", label: "ID", render: (r) => <span className="tabular text-xs text-[#1E3A8A]">{dispId(r)}</span> },
           { key: "name", label: "Name / Category", render: (r) => r.name || r.category }, { key: "owner_name", label: "Owner", sortable: false },
           { key: "archived_source", label: "Archived by", render: (r) => `${label(r.archived_source)} · ${r.archived_by || ""}` },
           { key: "archive_reason", label: "Reason" }, { key: "archived_at", label: "Archived at", render: (r) => fmtDateTime(r.archived_at) }]}

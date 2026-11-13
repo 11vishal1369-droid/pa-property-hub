@@ -95,7 +95,7 @@ async def seed_core():
 
 
 async def seed_data():
-    if await db.owners.count_documents({}) > 0:
+    if await db.owners.count_documents({}) > 0 or os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON") or await db.migrations.find_one({"_id": "firestore_cutover"}):
         return
     counters = {}
 

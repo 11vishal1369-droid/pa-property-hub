@@ -7,6 +7,7 @@ from core import db, clean, audit, audited, require, current_admin, now_iso, req
 import re
 from data import enrich, validate_coupon as validate_coupon_fields, validate_coupon_targets, ELIGIBILITY
 from exports import simple_pdf
+import firebase_sync
 
 router = APIRouter(prefix="/api")
 
@@ -380,6 +381,7 @@ async def create_coupon(body: CouponIn, admin=Depends(require("coupons", "edit")
            "created_at": now_iso(), "created_by": admin["email"], "history": []}
     await audit(admin, "create", "coupons", doc["id"], None, {"code": code, "value": body.value}, reason)
     await db.coupons.insert_one(doc)
+    await firebase_sync.push("coupons", [doc["id"]])
     return clean(doc)
 
 
@@ -619,6 +621,7 @@ async def create_banner(body: BannerIn, admin=Depends(require("banners", "edit")
            "status": "active", "created_at": now_iso(), "created_by": admin["email"], "history": []}
     await audit(admin, "create", "banners", doc["id"], None, {"title": body.title}, reason)
     await db.banners.insert_one(doc)
+    await firebase_sync.push("banners", [doc["id"]])
     return clean(doc)
 
 
@@ -636,6 +639,7 @@ async def reorder_banners(body: ReorderIn, admin=Depends(require("banners", "edi
     await audit(admin, "reorder", "banners", "banners", None, {"audience": auds.pop(), "order": body.ids}, reason)
     for i, bid in enumerate(body.ids):
         await db.banners.update_one({"id": bid}, {"$set": {"order": i + 1}})
+    await firebase_sync.push("banners", body.ids)
     return {"ok": True}
 
 
