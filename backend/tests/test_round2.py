@@ -33,21 +33,27 @@ def test_gst_split(c):
     assert "Base Amount" in r.text.splitlines()[0] and "GST Amount" in r.text.splitlines()[0]
 
 
-def test_fee_categories_and_quote(c):
+def test_duration_fees_and_quote(c):
     s = c.get(f"{API}/settings").json()
-    assert len(s["agreement_fees"]) == 13 and "PG – Co-living/Mixed" in s["agreement_fees"]
-    fees = dict(s["agreement_fees"], **{"Shop": 149})
-    r = c.put(f"{API}/settings", json={"settings": {"agreement_fees": fees}, "reason": "TEST fee"})
-    assert r.status_code == 200
-    bad = c.put(f"{API}/settings", json={"settings": {"agreement_fees": {"Shop": 1}}, "reason": "TEST"})
-    assert bad.status_code == 400
+    assert [t["days"] for t in s["agreement_duration_fees"]] == [30, 90, 180, 365]
+    tiers = [{"days": 90, "fee": 249}, {"days": 30, "fee": 149}, {"days": 365, "fee": 599}]
+    r = c.put(f"{API}/settings", json={"settings": {"agreement_duration_fees": tiers}, "reason": "TEST fee"})
+    assert r.status_code == 200 and [t["days"] for t in r.json()["agreement_duration_fees"]] == [30, 90, 365]
+    for bad in ([], [{"days": 30, "fee": 1}, {"days": 30, "fee": 2}], [{"days": 0, "fee": 1}], [{"days": 30, "fee": -1}], [{"days": "30", "fee": 1}]):
+        assert c.put(f"{API}/settings", json={"settings": {"agreement_duration_fees": bad}, "reason": "TEST"}).status_code == 400
+    f = httpx.get(f"{API}/app/fees", headers=APPH, params={"duration_days": 31}).json()
+    assert f["agreement"]["tier_days"] == 90 and f["agreement"]["agreement_fee"] == 249 and f["agreement"]["gst"]["base_amount"] == round(249 / 1.18, 2)
+    assert f["platform_fee"] == s["owner_platform_fee"] and "tenant_fees" in f and len(f["agreement_duration_fees"]) == 3
+    assert httpx.get(f"{API}/app/fees", headers=APPH, params={"start_date": "2026-01-01", "end_date": "2026-01-31"}).json()["agreement"]["agreement_fee"] == 149
+    assert httpx.get(f"{API}/app/fees", headers=APPH, params={"duration_days": 700}).json()["agreement"]["agreement_fee"] == 599
+    assert httpx.get(f"{API}/app/fees", headers=APPH, params={"start_date": "2026-02-01", "end_date": "2026-01-01"}).status_code == 400
     shop = items(c, "properties", type="Shop")[0]
-    q = httpx.post(f"{API}/app/fees/quote", headers=APPH, json={"fee_type": "agreement_fee", "property_id": shop["id"], "user_type": "owner", "user_id": shop["owner_id"]})
-    owner_ok = q.status_code == 200 or "account is" in q.text
-    assert owner_ok
-    f = httpx.get(f"{API}/app/fees", headers=APPH, params={"property_id": shop["id"]}).json()
-    assert f["property"]["fee_category"] == "Shop" and f["property"]["agreement_fee"] == 149 and f["property"]["gst"]["base_amount"] == round(149 / 1.18, 2)
+    q = httpx.post(f"{API}/app/fees/quote", headers=APPH, json={"fee_type": "agreement_fee", "duration_days": 300, "user_type": "owner", "user_id": shop["owner_id"]})
+    assert (q.status_code == 200 and q.json()["amount"] == 599 and q.json()["tier_days"] == 365) or "account is" in q.text
+    q2 = httpx.post(f"{API}/app/fees/quote", headers=APPH, json={"fee_type": "agreement_fee", "user_type": "owner", "user_id": shop["owner_id"]})
+    assert q2.status_code == 400 or "account is" in q2.text
     assert httpx.get(f"{API}/app/fees").status_code == 401
+    c.put(f"{API}/settings", json={"settings": {"agreement_duration_fees": s["agreement_duration_fees"]}, "reason": "TEST restore"})
 
 
 def test_no_manual_agreement_approval(c):

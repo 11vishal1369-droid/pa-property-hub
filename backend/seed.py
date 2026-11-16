@@ -84,7 +84,7 @@ async def seed_core():
     if not await db.settings.find_one({"key": "global"}):
         await db.settings.insert_one({
             "key": "global", "version": 1, "owner_platform_fee": 99, "platform_validity_days": 365, "agreement_fee_default": 99,
-            "agreement_fees": {c: 99 for c in AGR_CATS}, "tenant_fees": {"registration": 0, "agreement": 0, "monthly": 0},
+            "agreement_fees": {c: 99 for c in AGR_CATS}, "agreement_duration_fees": [{"days": d, "fee": 99} for d in (30, 90, 180, 365)], "tenant_fees": {"registration": 0, "agreement": 0, "monthly": 0},
             "coupon_applicability": {"agreement_fee": True, "platform_fee": True},
             "renewal": {"grace_days": 7, "reminder_days_before": 15, "auto_block_on_expiry": False},
             "gateway": {"provider_name": "Generic Gateway", "mode": "test", "key_id": "", "merchant_id": "", "webhook_url": "", "enabled": False, "secret_set": False, "secret_last4": ""},

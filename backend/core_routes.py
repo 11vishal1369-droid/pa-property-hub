@@ -4,6 +4,7 @@ from datetime import datetime, timezone, timedelta, date
 from typing import Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
+import firebase_sync
 from core import (db, clean, audit, require, current_admin, now_iso, require_reason, hash_password, verify_password,
                   create_token, next_id, MODULES, LEVELS, hash_entry, encrypt, FEE_CATEGORIES)
 
@@ -173,6 +174,22 @@ class SettingsIn(BaseModel):
 
 
 def check_settings(new):
+    tiers = new.get("agreement_duration_fees")
+    if tiers is not None:
+        if not isinstance(tiers, list) or not 1 <= len(tiers) <= 20:
+            raise HTTPException(400, "Add between 1 and 20 agreement duration fees")
+        for t in tiers:
+            if not isinstance(t, dict) or set(t) - {"days", "fee", "label"} or not isinstance(t.get("days"), int) or not 1 <= t["days"] <= 3650:
+                raise HTTPException(400, "Each agreement fee needs a duration in whole days between 1 and 3650")
+            if not isinstance(t.get("fee"), (int, float)) or t["fee"] < 0:
+                raise HTTPException(400, f"Fee for {t['days']} days must be a non-negative number")
+            t["fee"] = round(float(t["fee"]), 2)
+        if len({t["days"] for t in tiers}) != len(tiers):
+            raise HTTPException(400, "Each duration can only be listed once")
+        tiers.sort(key=lambda t: t["days"])
+    for k, v in (new.get("tenant_fees") or {}).items():
+        if not isinstance(v, (int, float)) or v < 0:
+            raise HTTPException(400, f"Tenant {k} fee must be a non-negative number")
     fees = new.get("agreement_fees")
     if fees is not None:
         if set(fees) != set(FEE_CATEGORIES):
@@ -213,6 +230,8 @@ async def update_settings(body: SettingsIn, admin=Depends(require("settings", "e
                 {**{k: upd.get(k) for k in new}, "secrets_changed": [n for n in SECRET_SLOTS if getattr(body, n)]}, reason)
     await db.settings_history.insert_one({**old, "archived_at": now_iso(), "replaced_by": admin["email"], "reason": reason})
     await db.settings.update_one({"key": "global"}, {"$set": upd})
+    if set(new) & set(firebase_sync.FEE_KEYS):
+        await firebase_sync.publish_fees()
     return await get_settings(admin)
 
 

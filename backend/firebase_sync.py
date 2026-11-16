@@ -9,7 +9,7 @@ from firebase_admin import credentials, firestore
 from fastapi import APIRouter, Depends
 from pymongo import UpdateOne
 from pymongo.errors import BulkWriteError
-from core import db, require, now_iso, encrypt, mask_aadhaar, fee_category, audit
+from core import db, require, now_iso, encrypt, mask_aadhaar, fee_category, audit, gst_split, GST_RATE_DEFAULT as GST_RATE
 
 router = APIRouter(prefix="/api")
 log = logging.getLogger("firebase_sync")
@@ -593,6 +593,35 @@ async def deliver_scheduled():
 
 
 # ---------- status ----------
+
+FEE_KEYS = ["agreement_duration_fees", "owner_platform_fee", "platform_validity_days", "tenant_fees", "tax", "coupon_applicability"]
+FEES_DOC = ("app_config", "fees")
+
+
+async def fee_config():
+    s = await db.settings.find_one({"key": "global"}, {"_id": 0})
+    rate = s["tax"].get("gst_percent", GST_RATE)
+    return {"agreement_duration_fees": [{**t, "gst": gst_split(t["fee"], rate)} for t in s["agreement_duration_fees"]],
+            "agreement_fee_rule": "Use the shortest duration whose days are greater than or equal to the agreement length (end date minus start date). "
+                                  "If the agreement is longer than every duration, use the longest duration's fee.",
+            "gst_inclusive": True, "gst_rate": rate, "platform_fee": s["owner_platform_fee"], "platform_validity_days": s["platform_validity_days"],
+            "platform_fee_gst": gst_split(s["owner_platform_fee"], rate), "tenant_fees": s["tenant_fees"],
+            "coupons_allowed": s.get("coupon_applicability", {}), "settings_version": s.get("version", 1), "updated_at": s.get("updated_at") or now_iso()}
+
+
+async def publish_fees():
+    if not os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON"):
+        return False
+    cfg = await fee_config()
+    try:
+        await asyncio.to_thread(lambda: client().collection(FEES_DOC[0]).document(FEES_DOC[1]).set({**cfg, "published_at": firestore.SERVER_TIMESTAMP}))
+        state["fees_published_at"] = now_iso()
+        return True
+    except Exception as e:
+        state["errors"] = (state["errors"] + [{"at": now_iso(), "collection": "app_config", "error": str(e)[:300]}])[-10:]
+        log.exception("publish fees failed")
+        return False
+
 
 def probe():
     out = {"project_id": os.environ["FIREBASE_PROJECT_ID"], "checked_at": now_iso(), "collections": {}}

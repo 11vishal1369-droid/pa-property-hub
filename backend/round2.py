@@ -9,7 +9,7 @@ from typing import Optional, List
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
-from core import (db, clean, audit, require, require_app, now_iso, require_reason, decrypt, fee_category, gst_split,
+from core import (db, clean, audit, require, require_app, now_iso, require_reason, decrypt, fee_category, gst_split, duration_fee, agreement_days,
                   FEE_CATEGORIES, SYSTEM_ACTOR, GST_RATE_DEFAULT)
 from data import enrich
 from exports import pdf_bytes
@@ -208,22 +208,27 @@ async def campaigns(audience: str, admin=Depends(require("notifications", "view"
 
 # ---------- App API (Owner / Tenant apps, X-App-Key) ----------
 @app.get("/fees")
-async def app_fees(property_id: Optional[str] = None):
-    s = await settings()
-    rate = s["tax"].get("gst_percent", GST_RATE_DEFAULT)
-    out = {"gst_inclusive": True, "gst_rate": rate, "platform_fee": s["owner_platform_fee"], "platform_validity_days": s["platform_validity_days"],
-           "platform_fee_gst": gst_split(s["owner_platform_fee"], rate), "tenant_fees": s["tenant_fees"],
-           "agreement_fees": [{"category": k, "fee": s["agreement_fees"][k], "gst": gst_split(s["agreement_fees"][k], rate)} for k in FEE_CATEGORIES]}
+async def app_fees(property_id: Optional[str] = None, duration_days: Optional[int] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
+    out = await firebase_sync.fee_config()
+    if start_date or end_date:
+        duration_days = agreement_days(start_date, end_date)
+    if duration_days is not None:
+        if duration_days < 1:
+            raise HTTPException(400, "duration_days must be at least 1")
+        t = duration_fee(out["agreement_duration_fees"], duration_days)
+        out["agreement"] = {"duration_days": duration_days, "tier_days": t["days"], "agreement_fee": t["fee"], "gst": t["gst"]}
     if property_id:
         p = await must("properties", property_id)
-        cat = fee_category(p)
-        out["property"] = {"id": p["id"], "fee_category": cat, "agreement_fee": s["agreement_fees"][cat], "gst": gst_split(s["agreement_fees"][cat], rate)}
+        out["property"] = {"id": p["id"], "fee_category": fee_category(p)}
     return out
 
 
 class QuoteIn(BaseModel):
     fee_type: str
     property_id: Optional[str] = None
+    duration_days: Optional[int] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
     user_type: str
     user_id: str
     coupon_code: Optional[str] = None
@@ -234,16 +239,20 @@ async def app_quote(body: QuoteIn, request: Request):
     await app_actor(request, body.user_type, body.user_id)
     s = await settings()
     rate = s["tax"].get("gst_percent", GST_RATE_DEFAULT)
+    cat, days, tier = None, None, None
     if body.fee_type == "platform_fee":
-        amount, cat = s["owner_platform_fee"], None
+        amount = s["owner_platform_fee"]
     elif body.fee_type == "agreement_fee":
-        if not body.property_id:
-            raise HTTPException(400, "property_id is required for agreement fee")
-        cat = fee_category(await must("properties", body.property_id))
-        amount = s["agreement_fees"][cat]
+        days = agreement_days(body.start_date, body.end_date) if (body.start_date or body.end_date) else body.duration_days
+        if not days or days < 1:
+            raise HTTPException(400, "duration_days (or start_date and end_date) is required for agreement fee")
+        t = duration_fee(s["agreement_duration_fees"], days)
+        amount, tier = t["fee"], t["days"]
+        if body.property_id:
+            cat = fee_category(await must("properties", body.property_id))
     else:
         raise HTTPException(400, "fee_type must be agreement_fee or platform_fee")
-    out = {"fee_type": body.fee_type, "fee_category": cat, "amount": amount, "discount": 0, "final_amount": amount, "coupon": None}
+    out = {"fee_type": body.fee_type, "fee_category": cat, "duration_days": days, "tier_days": tier, "amount": amount, "discount": 0, "final_amount": amount, "coupon": None}
     if body.coupon_code:
         if not s["coupon_applicability"].get(body.fee_type, True):
             raise HTTPException(400, f"Coupons are disabled for {body.fee_type}")
@@ -470,6 +479,17 @@ async def app_esign_status(aid: str, user_type: str, user_id: str, request: Requ
 
 
 # ---------- Migration ----------
+async def migrate_round8():
+    """Duration-based agreement fees. Seeds tiers once at the current default price; past agreements/payments are untouched."""
+    if await db.migrations.find_one({"_id": "round8_duration_fees"}):
+        return
+    s = await settings()
+    if not s.get("agreement_duration_fees"):
+        base = s.get("agreement_fee_default", 99)
+        await db.settings.update_one({"key": "global"}, {"$set": {"agreement_duration_fees": [{"days": d, "fee": base} for d in (30, 90, 180, 365)]}})
+    await db.migrations.insert_one({"_id": "round8_duration_fees", "at": now_iso()})
+
+
 async def migrate_round2():
     if await db.migrations.find_one({"_id": "round2"}):
         return

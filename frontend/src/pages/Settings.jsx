@@ -50,7 +50,7 @@ export function PasswordCard() {
 export default function SettingsPage() {
   const { can } = useAuth();
   const [sp] = useSearchParams();
-  const [tab, setTab] = useState(sp.get("tab") || "fees");
+  const [tab, setTab] = useState(sp.get("tab") === "fees" ? "agreement-fees" : sp.get("tab") || "agreement-fees");
   const [s, setS] = useState(null);
   const [secret, setSecret] = useState("");
   const [hist, setHist] = useState([]);
@@ -60,6 +60,7 @@ export default function SettingsPage() {
   useEffect(load, []);
   const set = (k, v) => setS((x) => ({ ...x, [k]: v }));
   const setIn = (k, sub, v) => setS((x) => ({ ...x, [k]: { ...x[k], [sub]: v } }));
+  const setTier = (i, f, v) => setS((x) => ({ ...x, agreement_duration_fees: x.agreement_duration_fees.map((t, j) => (j === i ? { ...t, [f]: v } : t)) }));
   const [esKey, setEsKey] = useState("");
   const [esHook, setEsHook] = useState("");
   const save = () => open({ title: "Save platform settings", description: "Previous settings are versioned in settings history.",
@@ -73,25 +74,33 @@ export default function SettingsPage() {
     <div>
       {dialog}
       <PageHeader title="Settings" subtitle={`Version ${s.version} · last updated ${fmtDateTime(s.updated_at)}${s.updated_by ? ` by ${s.updated_by}` : ""}`}>
-        {!ro && ["fees", "renewal", "gateway", "esign", "tax"].includes(tab) && <Button onClick={save} className="bg-[#EA580C] hover:bg-[#c2410c]" data-testid="save-settings-button">Save settings</Button>}
+        {!ro && ["agreement-fees", "renewal", "gateway", "esign", "tax"].includes(tab) && <Button onClick={save} className="bg-[#EA580C] hover:bg-[#c2410c]" data-testid="save-settings-button">Save settings</Button>}
       </PageHeader>
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="h-auto flex-wrap bg-white shadow-sm ring-1 ring-slate-200">
-          {[["fees", "Fees"], ["renewal", "Renewal & coupons"], ["gateway", "Payment gateway"], ["esign", "e-Sign provider"], ["tax", "Tax & legal"], ["firebase", "Firebase"], ["password", "Change password"], ["history", "History"]].map(([k, l]) =>
+          {[["agreement-fees", "Agreement Fees"], ["renewal", "Subscription, renewal & coupons"], ["gateway", "Payment gateway"], ["esign", "e-Sign provider"], ["tax", "Tax & legal"], ["firebase", "Firebase"], ["password", "Change password"], ["history", "History"]].map(([k, l]) =>
             <TabsTrigger key={k} value={k} data-testid={`settings-tab-${k}`}>{l}</TabsTrigger>)}
         </TabsList>
-        <TabsContent value="fees" className="mt-4 space-y-4">
-          <Section title="Owner platform fee"><div className="grid gap-3 sm:grid-cols-3">
-            <Num l="Platform fee (₹)" id="owner-platform-fee" v={s.owner_platform_fee} on={(v) => set("owner_platform_fee", v)} disabled={ro} />
-            <Num l="Validity (days)" id="platform-validity-days" v={s.platform_validity_days} on={(v) => set("platform_validity_days", v)} disabled={ro} />
-            <Num l="Default agreement fee (₹)" id="agreement-fee-default" v={s.agreement_fee_default} on={(v) => set("agreement_fee_default", v)} disabled={ro} /></div></Section>
-          <Section title="Agreement fee per property category (GST inclusive)"><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="agreement-fee-grid">
-            {Object.entries(s.agreement_fees).map(([k, v], i) => <Num key={k} l={`${k} (₹)`} id={`agreement-fee-${i}`} v={v} on={(x) => setIn("agreement_fees", k, x)} disabled={ro} />)}</div>
-            <p className="mt-3 text-xs text-slate-400">Changes apply to new agreements only; fees already recorded on past agreements and payments stay as they were.</p></Section>
-          <Section title="Tenant fees"><div className="grid gap-3 sm:grid-cols-3">
-            {Object.entries(s.tenant_fees).map(([k, v]) => <Num key={k} l={`Tenant ${k} fee (₹)`} id={`tenant-fee-${k}`} v={v} on={(x) => setIn("tenant_fees", k, x)} disabled={ro} />)}</div></Section>
+        <TabsContent value="agreement-fees" className="mt-4 space-y-4">
+          <Section title="Agreement fees by duration (GST inclusive)">
+            <p className="mb-3 text-xs text-slate-500">An agreement is charged the fee of the shortest duration that covers it (end date − start date). Longer agreements use the longest duration's fee. Changes apply to new agreements only; fees already recorded on past agreements and payments stay as they were. Saved fees are published to the mobile app straight away.</p>
+            <div className="space-y-2" data-testid="agreement-duration-fees">
+              {s.agreement_duration_fees.map((t, i) => (
+                <div key={i} className="grid grid-cols-[1fr_1fr_auto] items-end gap-3" data-testid={`duration-fee-row-${i}`}>
+                  <Num l="Duration (days)" id={`duration-days-${i}`} v={t.days} on={(v) => setTier(i, "days", v)} disabled={ro} />
+                  <Num l="Fee (₹)" id={`duration-fee-${i}`} v={t.fee} on={(v) => setTier(i, "fee", v)} disabled={ro} />
+                  {!ro && <Button variant="outline" size="sm" className="mb-0.5" disabled={s.agreement_duration_fees.length <= 1} onClick={() => set("agreement_duration_fees", s.agreement_duration_fees.filter((_, j) => j !== i))} data-testid={`duration-remove-${i}`}>Remove</Button>}
+                </div>))}
+            </div>
+            {!ro && <Button variant="outline" size="sm" className="mt-3" onClick={() => set("agreement_duration_fees", [...s.agreement_duration_fees, { days: "", fee: "" }])} data-testid="duration-add">Add duration</Button>}
+          </Section>
         </TabsContent>
         <TabsContent value="renewal" className="mt-4 grid gap-4 lg:grid-cols-2">
+          <Section title="Owner platform subscription"><div className="grid gap-3 sm:grid-cols-2">
+            <Num l="Platform fee (₹)" id="owner-platform-fee" v={s.owner_platform_fee} on={(v) => set("owner_platform_fee", v)} disabled={ro} />
+            <Num l="Validity (days)" id="platform-validity-days" v={s.platform_validity_days} on={(v) => set("platform_validity_days", v)} disabled={ro} /></div></Section>
+          <Section title="Tenant fees"><div className="grid gap-3 sm:grid-cols-3">
+            {Object.entries(s.tenant_fees).map(([k, v]) => <Num key={k} l={`Tenant ${k} fee (₹)`} id={`tenant-fee-${k}`} v={v} on={(x) => setIn("tenant_fees", k, x)} disabled={ro} />)}</div></Section>
           <Section title="Renewal rules"><div className="grid gap-3">
             <Num l="Grace period (days)" id="grace-days" v={s.renewal.grace_days} on={(v) => setIn("renewal", "grace_days", v)} disabled={ro} />
             <Num l="Reminder before expiry (days)" id="reminder-days" v={s.renewal.reminder_days_before} on={(v) => setIn("renewal", "reminder_days_before", v)} disabled={ro} />

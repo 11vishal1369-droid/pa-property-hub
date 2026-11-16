@@ -34,7 +34,9 @@ logging.basicConfig(level=logging.INFO)
 async def startup():
     await run_seed()
     await round2.migrate_round2()
+    await round2.migrate_round8()
     await firebase_sync.start()
+    await firebase_sync.publish_fees()
 
 
 @app.on_event("shutdown")

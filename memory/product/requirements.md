@@ -77,3 +77,10 @@ Change style make big and use symbol for below things:
 LOGIN OR REGISTER AS A TENANT
 LOGIN OR REGISTER AS A PROPERTY OWNER"
 Logo (image is inside this Word document; extract it): https://customer-assets-m6fa6gv7.emergentagent.net/job_pa-property-hub--6bckfbno/artifacts/5e559532079024aa_Logo.docx
+
+---
+# Round 8: Duration-based agreement fees (user's words)
+"Only do this task. Do not continue any pending work. Stop and report when done.
+From /Admin remove "Fees" from setting. of /admin
+and add option "Agreement Fees" to change fees for agreement based on duration. example: 30 days price will be diffrent, 90 days will be diffrent. and it will reflect in mobile apk."
+Notes: the old Fees tab also held the owner platform subscription fee (₹99/365 days) and tenant fees; those must stay editable somewhere, not be lost. Past agreement fees and payments must not change. "Reflect in mobile apk": the app reads Firestore, so the duration fees must be available to the mobile app without an APK update (and via the existing /api/app fee endpoints).

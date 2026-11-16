@@ -163,6 +163,26 @@ def gst_split(total, rate=GST_RATE_DEFAULT):
     return {"total_received": total, "base_amount": base, "gst_amount": round(total - base, 2), "total": total, "gst_rate": rate}
 
 
+DEFAULT_DURATION_FEES = [{"days": 30, "fee": 99}, {"days": 90, "fee": 99}, {"days": 180, "fee": 99}, {"days": 365, "fee": 99}]
+
+
+def duration_fee(tiers, days):
+    """Fee tier for an agreement of `days`: the shortest tier covering it, else the longest tier."""
+    tiers = sorted(tiers, key=lambda t: t["days"])
+    return next((t for t in tiers if t["days"] >= days), tiers[-1])
+
+
+def agreement_days(start_date, end_date):
+    from datetime import date
+    try:
+        d = (date.fromisoformat(end_date[:10]) - date.fromisoformat(start_date[:10])).days
+    except (TypeError, ValueError):
+        raise HTTPException(400, "start_date and end_date must be YYYY-MM-DD")
+    if d < 1:
+        raise HTTPException(400, "end_date must be after start_date")
+    return d
+
+
 def fee_category(prop):
     if prop.get("category") == "PG":
         return {"Boys": "PG – Boys", "Girls": "PG – Girls"}.get(prop.get("pg_gender"), "PG – Co-living/Mixed")

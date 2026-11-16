@@ -166,3 +166,26 @@ def test_test_server_has_firestore_disabled():
     r = httpx.post(f"{os.environ['TEST_API']}/auth/login", json={"email": "admin@pa.com", "password": "Admin@123"})
     s = httpx.get(f"{os.environ['TEST_API']}/firebase/status", headers={"Authorization": f"Bearer {r.json()['token']}"}, timeout=60).json()
     assert s["sync"]["running"] is False
+
+
+def test_fee_config_published_to_fake_firestore(monkeypatch):
+    fake = FakeFirestore()
+    written = {}
+
+    class Doc:
+        def set(self, data):
+            written.update(data)
+
+    class Coll:
+        def document(self, d):
+            assert d == "fees"
+            return Doc()
+    fake.collection = lambda name: (written.__setitem__("_coll", name), Coll())[1]
+    monkeypatch.setattr(fsync, "client", lambda: fake)
+    monkeypatch.setenv("FIREBASE_SERVICE_ACCOUNT_JSON", "{}")
+    run(db.settings.update_one({"key": "global"}, {"$set": {"agreement_duration_fees": [{"days": 30, "fee": 149.0}, {"days": 90, "fee": 249.0}],
+                                                            "owner_platform_fee": 99, "platform_validity_days": 365, "tenant_fees": {"monthly": 0},
+                                                            "tax": {"gst_percent": 18}, "version": 7}}, upsert=True))
+    assert run(fsync.publish_fees()) is True
+    assert written["_coll"] == "app_config" and [t["fee"] for t in written["agreement_duration_fees"]] == [149.0, 249.0]
+    assert written["agreement_duration_fees"][0]["gst"]["base_amount"] == round(149 / 1.18, 2) and written["platform_fee"] == 99
