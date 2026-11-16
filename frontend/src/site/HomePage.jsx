@@ -1,6 +1,20 @@
-import { ArrowUpRight, Check, Smartphone } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Building2, Check, KeyRound, Smartphone } from "lucide-react";
 import { RichText } from "./RichText";
 import { PageState, usePage } from "./SiteLayout";
+
+const ROLE = [{ Icon: KeyRound, cls: "role-tenant" }, { Icon: Building2, cls: "role-owner" }];
+
+const RoleBtn = ({ b, i }) => {
+  const { Icon, cls } = ROLE[i % 2];
+  const ext = /^https?:/.test(b.url);
+  return (
+    <a href={b.url} className={`role-btn ${cls}`} data-testid={`home-login-btn-${i}`} {...(ext ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+      <span className="role-icon"><Icon className="h-7 w-7" strokeWidth={1.8} /></span>
+      <span className="role-label">{b.label}</span>
+      <ArrowRight className="role-arrow h-5 w-5" />
+    </a>
+  );
+};
 
 const Btn = ({ b, i, dark, blue, testid }) => {
   const ext = /^https?:/.test(b.url);
@@ -20,9 +34,9 @@ export default function HomePage() {
         <div className="site-wrap grid items-center gap-12 py-16 lg:grid-cols-[1.05fr_1fr] lg:py-24">
           <div className="site-rise">
             <p className="site-eyebrow" data-testid="home-eyebrow">{c.eyebrow}</p>
-            <h1 className="site-display mt-5 text-4xl text-[#0b1b3f] sm:text-5xl lg:text-6xl" data-testid="home-brand">{c.brand}</h1>
-            <p className="mt-5 max-w-xl text-lg text-[#3d4b66]" data-testid="home-tagline">{c.tagline}</p>
-            <div className="mt-9 flex flex-wrap gap-3">{c.login_buttons.map((b, i) => <Btn key={i} b={b} blue={i === 0} testid={`home-login-btn-${i}`} />)}</div>
+            <h1 className="site-display hero-title mt-5 text-4xl sm:text-5xl lg:text-6xl" data-testid="home-brand">{c.brand}</h1>
+            <p className="mt-5 max-w-xl text-lg text-[#c9d6f5]" data-testid="home-tagline">{c.tagline}</p>
+            <div className="mt-10 grid max-w-xl gap-4">{c.login_buttons.map((b, i) => <RoleBtn key={i} b={b} i={i} />)}</div>
             <p className="site-soon mt-8" data-testid="home-coming-soon">{c.coming_soon}</p>
           </div>
           <div className="site-rise site-delay-1 relative">
@@ -40,7 +54,7 @@ export default function HomePage() {
         <p className="text-lg leading-relaxed text-[#2b3852]" data-testid="home-about-text"><RichText text={c.about_text} /></p>
       </section>
 
-      <section className="bg-[#0b1b3f] py-20 text-[#ffffff]">
+      <section className="site-dark py-20 text-[#ffffff]">
         <div className="site-wrap">
           <h2 className="site-display text-3xl lg:text-4xl" data-testid="home-features-title">{c.features_title}</h2>
           <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -67,14 +81,14 @@ export default function HomePage() {
       </section>
 
       <section className="site-wrap pb-20">
-        <div className="rounded-[32px] border border-[#0b1b3f]/15 bg-white/60 p-10 lg:p-14">
+        <div className="site-glow-card rounded-[32px] p-10 lg:p-14">
           <h2 className="site-display text-3xl text-[#0b1b3f]" data-testid="home-simpler-title">{c.simpler_title}</h2>
           <p className="mt-4 max-w-3xl text-lg leading-relaxed text-[#2b3852]" data-testid="home-simpler-text"><RichText text={c.simpler_text} /></p>
         </div>
       </section>
 
       <section id="get-the-app" className="site-wrap pb-24">
-        <div className="flex flex-col items-start justify-between gap-8 rounded-[32px] bg-[#f97316] p-10 lg:flex-row lg:items-center lg:p-14">
+        <div className="site-app-band flex flex-col items-start justify-between gap-8 rounded-[32px] p-10 lg:flex-row lg:items-center lg:p-14">
           <div className="flex items-start gap-4">
             <Smartphone className="mt-1 h-8 w-8 text-[#0b1b3f]" />
             <div>

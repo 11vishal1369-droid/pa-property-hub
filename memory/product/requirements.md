@@ -67,3 +67,13 @@ Note: no separate Contact Us document was uploaded; use contact details found in
 "Only do this task. Do not continue any pending work. Stop and report when done.
 Change the home, terms conditions, privacy policy, refund policy pages colour theme to match the attached reference image, using dark navy, royal blue, white and orange accents. Keep the existing layout and functionality unchanged."
 Note: no reference image was actually received; use dark navy, royal blue, white and orange accents. Do not continue the pending Round 5 items (deployment package, tests).
+
+---
+# Round 7: Logo + premium look (user's words)
+"Only do this task. Do not continue any pending work. Stop and report when done.
+Use this logo.
+make colour look premium and attractive for home, terms conditions, privacy policy,refund policy pages..
+Change style make big and use symbol for below things:
+LOGIN OR REGISTER AS A TENANT
+LOGIN OR REGISTER AS A PROPERTY OWNER"
+Logo (image is inside this Word document; extract it): https://customer-assets-m6fa6gv7.emergentagent.net/job_pa-property-hub--6bckfbno/artifacts/5e559532079024aa_Logo.docx

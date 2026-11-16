@@ -22,12 +22,16 @@ export default function LegalPage({ slug }) {
   const { content: c, error, updated } = usePage(slug);
   if (!c) return <PageState error={error} />;
   return (
-    <article className="site-wrap py-16 lg:py-20" data-testid={`legal-page-${slug}`}>
-      <div className="mx-auto max-w-3xl">
-        <p className="site-eyebrow">Legal</p>
-        <h1 className="site-display mt-4 text-4xl text-[#0b1b3f] sm:text-5xl" data-testid="legal-title">{c.title}</h1>
-        {updated && <p className="mt-3 text-sm text-[#5b6b8c]" data-testid="legal-updated">Page last updated {fmt(updated)}</p>}
-        <div className="legal-body mt-10"><Blocks blocks={c.blocks} /></div>
+    <article data-testid={`legal-page-${slug}`}>
+      <header className="legal-hero">
+        <div className="site-wrap mx-auto max-w-3xl py-14 lg:py-16">
+          <p className="site-eyebrow site-eyebrow-light">Legal</p>
+          <h1 className="site-display hero-title mt-4 text-4xl sm:text-5xl" data-testid="legal-title">{c.title}</h1>
+          {updated && <p className="mt-3 text-sm text-[#a9bbe8]" data-testid="legal-updated">Page last updated {fmt(updated)}</p>}
+        </div>
+      </header>
+      <div className="site-wrap py-12 lg:py-16">
+        <div className="legal-body legal-sheet mx-auto max-w-3xl"><Blocks blocks={c.blocks} /></div>
       </div>
     </article>
   );

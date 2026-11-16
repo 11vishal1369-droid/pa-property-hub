@@ -30,7 +30,10 @@ function Footer() {
     <footer className="site-footer" data-testid="site-footer">
       <div className="site-wrap grid gap-10 py-14 md:grid-cols-[1.4fr_1fr]">
         <div>
-          <p className="site-display text-2xl text-[#ffffff]" data-testid="footer-brand">{f?.footer_brand || "Propertys Available"}</p>
+          <div className="flex items-center gap-4">
+            <img src="/site/logo-128.png" alt="" className="h-16 w-16 rounded-2xl bg-white p-1.5 object-contain shadow-lg" />
+            <p className="site-display text-2xl text-[#ffffff]" data-testid="footer-brand">{f?.footer_brand || "Propertys Available"}</p>
+          </div>
           <p className="mt-2 text-sm text-[#a9bbe8]" data-testid="footer-byline">{f?.footer_byline}</p>
         </div>
         <nav className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
@@ -51,7 +54,7 @@ export default function SiteLayout() {
       <header className="site-header">
         <div className="site-wrap flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5" data-testid="site-logo">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0b1b3f] text-xs font-bold text-[#f97316]">PA</span>
+            <img src="/site/logo-128.png" alt="Propertys Available logo" className="h-11 w-11 object-contain" data-testid="site-logo-img" />
             <span className="site-display text-lg text-[#0b1b3f]">Propertys Available</span>
           </Link>
           <nav className="hidden items-center gap-1 lg:flex">
