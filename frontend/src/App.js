@@ -26,6 +26,7 @@ import SettingsPage from "./pages/Settings";
 import SearchPage from "./pages/SearchPage";
 import { PasswordCard } from "./pages/Settings";
 import { PageHeader } from "./components/Common";
+import PublicSite from "./site/PublicSite";
 
 const Guard = ({ children }) => {
   const { admin } = useAuth();
@@ -49,10 +50,13 @@ const routes = [
   ["settings", "settings", <SettingsPage />],
 ];
 
+export const ADMIN_BASE = "/admin";
+
 function App() {
+  if (!window.location.pathname.startsWith(ADMIN_BASE)) return <PublicSite />;
   return (
     <AuthProvider>
-      <BrowserRouter basename={process.env.PUBLIC_URL || ""}>
+      <BrowserRouter basename={ADMIN_BASE}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route element={<Guard><Layout /></Guard>}>

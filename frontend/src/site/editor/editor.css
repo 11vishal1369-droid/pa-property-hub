@@ -1,0 +1,16 @@
+.wc-root { background: #f8fafc; font-family: "Figtree", sans-serif; color: #0f172a; }
+.wc-input { border: 1px solid #cbd5e1; border-radius: 0.6rem; padding: 0.5rem 0.7rem; font-size: 0.9rem; background: #fff; transition: border-color 0.15s, box-shadow 0.15s; }
+.wc-input:focus { outline: none; border-color: #1f3d2b; box-shadow: 0 0 0 3px rgba(31, 61, 43, 0.12); }
+textarea.wc-input { resize: vertical; line-height: 1.55; }
+.wc-primary { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1rem; border-radius: 0.6rem; background: #1f3d2b; color: #fff; font-size: 0.88rem; font-weight: 600; transition: background-color 0.15s, opacity 0.15s; }
+.wc-primary:hover { background: #2c5a3f; }
+.wc-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+.wc-ghost { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.85rem; border-radius: 0.6rem; border: 1px solid #e2e8f0; background: #fff; font-size: 0.85rem; color: #334155; transition: background-color 0.15s; }
+.wc-ghost:hover { background: #f1f5f9; }
+.wc-tab { white-space: nowrap; padding: 0.4rem 0.85rem; border-radius: 999px; font-size: 0.85rem; color: #475569; transition: background-color 0.15s, color 0.15s; }
+.wc-tab:hover { background: #f1f5f9; }
+.wc-tab.is-active { background: #1f3d2b; color: #fff; }
+.wc-icon { display: flex; height: 1.7rem; width: 1.7rem; align-items: center; justify-content: center; border-radius: 0.4rem; border: 1px solid #e2e8f0; background: #fff; }
+.wc-icon:disabled { opacity: 0.35; }
+.wc-add { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.8rem; font-weight: 600; color: #1f3d2b; padding: 0.3rem 0.5rem; border-radius: 0.4rem; }
+.wc-add:hover { background: rgba(31, 61, 43, 0.08); }

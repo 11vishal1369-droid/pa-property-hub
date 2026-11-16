@@ -50,3 +50,20 @@ Note: Round 3 (Firestore mapping + live sync) is paused waiting on user decision
 - Mobile backend: no answer; default = read Firestore directly, no dependency on propertysavailable.com/api.
 - Deployment: "Yes, the panel's backend should use /api" (keep Nginx /api -> admin backend).
 Build the Firestore mapping and real-time sync, remove sample data once real data loads, keep audit/archive/no-hard-delete/Aadhaar masking. Retest.
+
+---
+# Round 5: Public website + web content editor (user's words)
+"Only do this task. Do not continue any pending work. Stop and report when done.
+Add a public website with five pages served from the same app: homepage at /, terms and conditions at /terms-conditions, privacy policy at /privacy-policy, refund policy at /refund-policy, and contact us at /contact-us. Each page content should come from the Word documents I have uploaded -- use them as the exact content for each respective page. Add a private web content editor at /webcontent with its own login (separate from the admin panel login) where the owner can edit the text content of all five pages including links and contact details, and save changes that reflect on the public pages instantly. The editor should not touch any admin panel data or the /api backend. Update the Nginx config and deployment package to include these new routes."
+Uploaded documents:
+- Homepage: https://customer-assets-m6fa6gv7.emergentagent.net/job_pa-property-hub--6bckfbno/artifacts/c38c60b04ac2e4c4_Homepage.docx
+- Terms and Conditions (.doc, old Word format): https://customer-assets-m6fa6gv7.emergentagent.net/job_pa-property-hub--6bckfbno/artifacts/79df929778c46a4f_Terms%20and%20Conditions.doc
+- Privacy Policy: https://customer-assets-m6fa6gv7.emergentagent.net/job_pa-property-hub--6bckfbno/artifacts/0c0df2362c59556c_Privacy%20Policy.docx
+- Refund and Cancellation Policy: https://customer-assets-m6fa6gv7.emergentagent.net/job_pa-property-hub--6bckfbno/artifacts/4dbe64c2f86859df_REFUND%20AND%20CANCELLATION%20POLICY.docx
+Note: no separate Contact Us document was uploaded; use contact details found in the uploaded documents, editable in /webcontent.
+
+---
+# Round 6: Public pages colour theme (user's words)
+"Only do this task. Do not continue any pending work. Stop and report when done.
+Change the home, terms conditions, privacy policy, refund policy pages colour theme to match the attached reference image, using dark navy, royal blue, white and orange accents. Keep the existing layout and functionality unchanged."
+Note: no reference image was actually received; use dark navy, royal blue, white and orange accents. Do not continue the pending Round 5 items (deployment package, tests).

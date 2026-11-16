@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Figtree:wght@400;500;600&display=swap");
+
+.site-root { --ink: #0b1b3f; --sand: #ffffff; --saffron: #f97316; background: var(--sand); color: #16213a; font-family: "Figtree", sans-serif; min-height: 100vh; }
+.site-root ::selection { background: var(--saffron); color: var(--ink); }
+.site-wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding-left: 1.5rem; padding-right: 1.5rem; }
+.site-display { font-family: "Fraunces", serif; font-weight: 600; letter-spacing: -0.02em; line-height: 1.08; }
+.site-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: #2350d8; }
+.site-header { position: sticky; top: 0; z-index: 30; background: rgba(255, 255, 255, 0.82); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(11, 27, 63, 0.08); }
+.site-nav { padding: 0.45rem 0.85rem; border-radius: 999px; font-size: 0.9rem; color: #3d4b66; transition: background-color 0.2s, color 0.2s; }
+.site-nav:hover { background: rgba(11, 27, 63, 0.07); color: var(--ink); }
+.site-nav.is-active { background: var(--ink); color: #ffffff; }
+.site-hero { background: radial-gradient(900px 480px at 88% -10%, rgba(35, 80, 216, 0.16), transparent 60%), radial-gradient(600px 360px at 10% 110%, rgba(249, 115, 22, 0.10), transparent 60%), #f5f8ff; }
+.site-hero-card { position: absolute; left: -1.5rem; bottom: -2rem; max-width: 320px; padding: 1.25rem 1.4rem; border-radius: 20px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(14px); box-shadow: 0 20px 40px -24px rgba(11, 27, 63, 0.45); }
+@media (max-width: 1023px) { .site-hero-card { position: static; margin-top: 1rem; max-width: none; } }
+.site-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 1.3rem; border-radius: 999px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; border: 1.5px solid var(--ink); color: var(--ink); transition: transform 0.2s, background-color 0.2s, color 0.2s; }
+.site-btn:hover { transform: translateY(-2px); background: var(--ink); color: #ffffff; }
+.site-btn-dark { background: var(--ink); color: #ffffff; }
+.site-btn-dark:hover { background: #2350d8; }
+.site-soon { display: inline-block; padding: 0.4rem 0.9rem; border-radius: 999px; background: rgba(11, 27, 63, 0.08); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.08em; color: var(--ink); }
+.site-link { color: #2350d8; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; transition: color 0.2s; word-break: break-word; }
+.site-link:hover { color: var(--ink); }
+.site-footer { background: #081431; }
+.legal-body { font-size: 1.02rem; line-height: 1.8; color: #22304a; }
+.legal-h2 { font-family: "Fraunces", serif; font-weight: 600; font-size: 1.3rem; color: var(--ink); margin: 2.6rem 0 0.8rem; padding-top: 1.4rem; border-top: 1px solid rgba(11, 27, 63, 0.12); }
+.legal-p { margin: 0 0 1rem; }
+.legal-list { margin: 0 0 1.2rem 1.2rem; list-style: disc; }
+.legal-list li { margin-bottom: 0.45rem; padding-left: 0.3rem; }
+.legal-list li::marker { color: var(--saffron); }
+.site-loader { width: 34px; height: 34px; margin: 0 auto; border-radius: 50%; border: 3px solid rgba(11, 27, 63, 0.15); border-top-color: var(--ink); animation: site-spin 0.8s linear infinite; }
+@keyframes site-spin { to { transform: rotate(360deg); } }
+@keyframes site-rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.site-rise { animation: site-rise 0.7s ease-out both; }
+.site-delay-1 { animation-delay: 0.15s; }
+.site-btn-blue { background: #2350d8; border-color: #2350d8; color: #ffffff; }
+.site-btn-blue:hover { background: #0b1b3f; border-color: #0b1b3f; }
+.site-nav.is-active { box-shadow: inset 0 -2px 0 #f97316; }

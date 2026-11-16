@@ -1,0 +1,1185 @@
+{
+ "home": {
+  "eyebrow": "PROPERTY DISCOVERY  •  RENTAL MANAGEMENT",
+  "brand": "Propertys Available",
+  "tagline": "Find Properties. Connect with Owners. Manage Rentals Easily.",
+  "login_buttons": [
+   {
+    "label": "LOGIN OR REGISTER AS A TENANT",
+    "url": "#get-the-app"
+   },
+   {
+    "label": "LOGIN OR REGISTER AS A PROPERTY OWNER",
+    "url": "#get-the-app"
+   }
+  ],
+  "coming_soon": "COMING SOON  •  More features and updates are on the way.",
+  "intro_title": "Your Rental Journey, Made Simpler",
+  "intro_text": "Discover PGs, flats, houses, apartments and commercial spaces. Propertys Available brings property owners and tenants together in one convenient platform.",
+  "about_title": "About Us",
+  "about_text": "Propertys Available is a property discovery and rental management platform designed to connect property owners with tenants. Owners can list and manage properties, handle tenant requests, organise rental agreements, track rent and deposits, and manage property-related bills. Tenants can explore available properties, send rental requests, access agreements, view payment details and manage their rental journey from one place.",
+  "features_title": "What You Can Do",
+  "features": [
+   {
+    "title": "For Property Owners",
+    "items": [
+     "List and manage multiple properties",
+     "Manage rooms, beds and occupancy",
+     "Handle tenant requests and agreements",
+     "Track rent, deposits and payments",
+     "Manage utility bills and tenant requests"
+    ]
+   },
+   {
+    "title": "For Tenants",
+    "items": [
+     "Discover PGs, flats, houses and commercial spaces",
+     "Send rental requests to property owners",
+     "View and download rental agreements",
+     "Track rent, deposits and payment details",
+     "Manage bills, leaving requests and complaints"
+    ]
+   }
+  ],
+  "mission_title": "Our Mission & Vision",
+  "mission": [
+   {
+    "title": "Our Mission",
+    "text": "To simplify property rentals by bringing owners and tenants onto one convenient digital platform, making property discovery, agreements, payments and property management more organised, transparent and accessible."
+   },
+   {
+    "title": "Our Vision",
+    "text": "To become a trusted property discovery and rental management platform connecting property owners and tenants across India through technology, convenience and transparency."
+   }
+  ],
+  "simpler_title": "A Simpler Rental Experience",
+  "simpler_text": "Whether you are searching for a place to live or managing properties, Propertys Available brings important rental activities together in one application—helping owners stay organised and tenants access their rental information conveniently.",
+  "app_title": "Get the App",
+  "app_text": "Download Propertys Available and get started:",
+  "app_buttons": [
+   {
+    "label": "DOWNLOAD ON GOOGLE PLAY",
+    "url": "https://playstore.com"
+   },
+   {
+    "label": "DOWNLOAD ON THE APP STORE",
+    "url": "https://iostore.com"
+   }
+  ],
+  "footer_brand": "Propertys Available",
+  "footer_byline": "A product by Consultancy Always On",
+  "footer_copyright": "© 2026 Consultancy Always On. All Rights Reserved."
+ },
+ "terms-conditions": {
+  "title": "TERMS AND CONDITIONS",
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "Effective Date: 01/11/2026"
+   },
+   {
+    "type": "paragraph",
+    "text": "Last Updated: 01/11/2026"
+   },
+   {
+    "type": "paragraph",
+    "text": "Platform / Legal Entity: PROPERTYS AVAILABLE / CONSULTANCY ALWAYS ON"
+   },
+   {
+    "type": "paragraph",
+    "text": "Website: www.propertysavailable.com"
+   },
+   {
+    "type": "paragraph",
+    "text": "Support Email: rahulmpcob@gmail.com"
+   },
+   {
+    "type": "heading",
+    "text": "1. ACCEPTANCE AND SCOPE"
+   },
+   {
+    "type": "paragraph",
+    "text": "These Terms and Conditions (“Terms”) govern access to and use of PROPERTYS AVAILABLE Platform”, “we”, “our” or “us”, including its website, Android or iOS application and related services. They apply to property owners, landlords, property managers, tenants, PG or hostel owners, residents and other users."
+   },
+   {
+    "type": "paragraph",
+    "text": "By registering, accessing or using the Platform, you agree to these Terms and the Privacy Policy. If you do not agree, do not use the Platform. If you use it on behalf of another person or business, you confirm that you are authorized to accept these Terms on their behalf."
+   },
+   {
+    "type": "heading",
+    "text": "2. DEFINITIONS"
+   },
+   {
+    "type": "paragraph",
+    "text": "“Owner” means a property owner, landlord or person authorized to offer or manage a property."
+   },
+   {
+    "type": "paragraph",
+    "text": "“Tenant” means a person renting, occupying or seeking to rent a property."
+   },
+   {
+    "type": "paragraph",
+    "text": "“User” means anyone accessing the Platform. “Property” includes a house, flat, room, paying guest accommodation, hostel or other rental premises."
+   },
+   {
+    "type": "paragraph",
+    "text": "“Services” means the digital features made available through the Platform."
+   },
+   {
+    "type": "heading",
+    "text": "3. ROLE OF THE PLATFORM"
+   },
+   {
+    "type": "paragraph",
+    "text": "The Platform provides digital tools to help users organize rental information and related activities. Depending on the features enabled, Services may include account registration, property and tenant records, rent and deposit tracking, payment-status records, rent receipts, rental document generation or storage, reminders, communications and links to third-party services."
+   },
+   {
+    "type": "paragraph",
+    "text": "Unless a separate written agreement expressly says otherwise, the Platform is a technology and record-management service. It is not the owner, landlord, tenant, real-estate broker, property manager, bank, escrow agent, police authority, identity-certification authority or legal adviser. The Platform does not become a party to a rental agreement merely because users create, upload or store it."
+   },
+   {
+    "type": "paragraph",
+    "text": "We do not guarantee property availability, ownership, condition, legality or suitability, or the accuracy of user-submitted information. We do not guarantee that an Owner or Tenant will perform their obligations. Users must independently verify relevant facts and make their own decisions."
+   },
+   {
+    "type": "heading",
+    "text": "4. ELIGIBILITY AND ACCOUNTS"
+   },
+   {
+    "type": "paragraph",
+    "text": "You must be legally competent to enter into a binding contract under applicable law to use contractual rental services. You must provide accurate, current and complete registration information and keep it updated. Do not impersonate another person or create an account using false information."
+   },
+   {
+    "type": "paragraph",
+    "text": "You are responsible for keeping passwords, OTPs, devices and account credentials confidential and for activity carried out through your account. Notify us promptly if you suspect unauthorized access. We may request reasonable verification before allowing account access or sensitive changes."
+   },
+   {
+    "type": "paragraph",
+    "text": "You must not sell, rent, transfer or share your account without our written permission. We may refuse registration or restrict an account where reasonably necessary for security, legal compliance or enforcement of these Terms."
+   },
+   {
+    "type": "heading",
+    "text": "5. OWNER RESPONSIBILITIES"
+   },
+   {
+    "type": "paragraph",
+    "text": "If you act as an Owner, you confirm that you own the property or have valid authority to advertise, rent or manage it. You must ensure property descriptions, photographs, rent, deposit, availability, amenities and location details are accurate and not misleading."
+   },
+   {
+    "type": "paragraph",
+    "text": "You must comply with applicable laws, building rules and local requirements; provide accurate payment instructions; acknowledge payments fairly and promptly; not list property you are unauthorized to offer; and not use the Platform for unlawful discrimination, harassment or screening."
+   },
+   {
+    "type": "paragraph",
+    "text": "You are responsible for property inspection and maintenance, verifying your authority to rent, setting lawful rental terms, preparing and executing suitable agreements, and meeting your obligations to tenants. The Platform does not perform these duties unless a separate written service expressly provides otherwise."
+   },
+   {
+    "type": "heading",
+    "text": "6. TENANT RESPONSIBILITIES"
+   },
+   {
+    "type": "paragraph",
+    "text": "If you act as a Tenant, you confirm that information and documents you provide are accurate. You must use the property lawfully and follow the rental agreement and applicable rules; pay rent, deposits and agreed charges to the correct recipient; not submit false payment confirmations or altered documents; and respect the property and other occupants."
+   },
+   {
+    "type": "paragraph",
+    "text": "You are responsible for inspecting the property, understanding the rental terms, confirming the Owner’s identity and authority and payment details, and obtaining a signed agreement where appropriate before paying money or moving in."
+   },
+   {
+    "type": "heading",
+    "text": "7. LISTINGS AND USER CONTENT"
+   },
+   {
+    "type": "paragraph",
+    "text": "Users are responsible for text, images, documents, reviews, messages, property details and other material they submit (“User Content”). You must have the rights and permissions needed to upload and share it, including permissions relating to individuals shown in photographs or named in documents where required."
+   },
+   {
+    "type": "paragraph",
+    "text": "Do not upload content that is false, deceptive, defamatory, threatening, discriminatory, unlawful, infringing, malicious or that violates another person’s privacy or rights. Do not upload another person’s identity document or personal information unless authorized and required for the feature."
+   },
+   {
+    "type": "paragraph",
+    "text": "You grant us a limited, non-exclusive, worldwide, royalty-free license to host, store, reproduce, display, transmit and process User Content only as reasonably necessary to operate, secure, support and improve the Services and as described in the Privacy Policy. You retain ownership of your content. We may remove or restrict content that appears to breach these Terms or applicable law."
+   },
+   {
+    "type": "heading",
+    "text": "8. RENT, DEPOSIT AND PAYMENT RECORDS"
+   },
+   {
+    "type": "paragraph",
+    "text": "The Platform may allow users to record rent, deposits, fees, utility charges, payments, dues and transaction references. Unless a payment feature is expressly enabled and identified as such, the Platform is only a record-keeping tool and does not collect, hold, transfer or guarantee funds."
+   },
+   {
+    "type": "paragraph",
+    "text": "A payment entry, screenshot, receipt or status entered by a user may not independently prove that funds have cleared or reached the intended recipient. Owners and tenants must verify payments with their bank, payment provider or the other party. Users are responsible for checking account details, UPI IDs, bank details, amounts, due dates and recipients before making payments."
+   },
+   {
+    "type": "paragraph",
+    "text": "If online payment is enabled, payments may be processed by a third-party provider under its own terms and privacy policy. Fees, settlement times, refunds, chargebacks and failed transactions may be subject to that provider’s rules. We are not responsible for delays or failures caused by banks, payment networks or third parties except where liability cannot lawfully be excluded."
+   },
+   {
+    "type": "heading",
+    "text": "9. RECEIPTS, STATEMENTS AND RENTAL DOCUMENTS"
+   },
+   {
+    "type": "paragraph",
+    "text": "The Platform may generate receipts, rent statements, reminders, summaries, templates or draft rental documents using information entered by users. Review every generated document for accuracy before signing, issuing, relying on or sharing it."
+   },
+   {
+    "type": "paragraph",
+    "text": "A generated template is not legal advice and may not satisfy every state-specific or local requirement for stamping, registration, notarization or evidentiary use. Users are responsible for ensuring agreements and documents are properly drafted, stamped, registered, executed and retained where required by law."
+   },
+   {
+    "type": "paragraph",
+    "text": "The Platform does not independently certify that a receipt reflects actual receipt of funds or that a generated document is legally valid, enforceable or complete."
+   },
+   {
+    "type": "heading",
+    "text": "10. OTP, IDENTITY AND VERIFICATION"
+   },
+   {
+    "type": "paragraph",
+    "text": "We may provide mobile OTP verification or facilitate identity, address, tenant or police-verification services through an authorized provider or competent authority, where legally permitted. You agree to provide accurate information and complete required consent and verification steps."
+   },
+   {
+    "type": "paragraph",
+    "text": "Verification scope, availability, timing and results depend on the provider, authority, records and applicable law. An OTP verifies access to a phone number or communication channel at that time; it does not prove identity, property ownership, creditworthiness or character. A verification status is not a guarantee of conduct or suitability. We do not guarantee that third-party records are complete, current or error-free."
+   },
+   {
+    "type": "paragraph",
+    "text": "Aadhaar-related services, if offered, will be provided only through a legally permitted process and appropriate authorized arrangements. Do not send Aadhaar numbers or identity documents through ordinary messages or support channels unless we expressly provide a secure and lawful method."
+   },
+   {
+    "type": "heading",
+    "text": "11. COMMUNICATIONS AND NOTIFICATIONS"
+   },
+   {
+    "type": "paragraph",
+    "text": "We may send service communications such as OTPs, account alerts, rent reminders, payment-status notifications, document updates, security notices and support responses by app notification, SMS, email, phone or other channels you provide. Keep your contact details current. Optional notifications may be managed through device or account settings; important service, security or legal notices may still be sent where permitted or required."
+   },
+   {
+    "type": "heading",
+    "text": "12. FEES, SUBSCRIPTIONS AND TAXES"
+   },
+   {
+    "type": "paragraph",
+    "text": "Some features may be free and others may require a payment, subscription or service fee. Applicable prices, billing cycles, trials, renewals, taxes and payment terms will be shown before purchase. We may change fees prospectively after providing notice as required by law. If auto-renewal is offered, renewal and cancellation terms will be disclosed at purchase."
+   },
+   {
+    "type": "paragraph",
+    "text": "You are responsible for applicable taxes, duties or charges associated with your use of paid Services, except taxes imposed on our income."
+   },
+   {
+    "type": "heading",
+    "text": "13. CANCELLATION AND REFUNDS"
+   },
+   {
+    "type": "paragraph",
+    "text": "Refund eligibility and timelines depend on the service, cancellation timing, payment provider and applicable consumer law. Any service-specific refund policy shown at purchase applies together with these Terms. If no separate policy is displayed, contact support with your transaction reference."
+   },
+   {
+    "type": "paragraph",
+    "text": "Amounts paid directly by a Tenant to an Owner as rent, deposit, brokerage, utility charges or other rental consideration are matters between those parties under their agreement. The Platform cannot decide or guarantee a refund of money it did not collect. This section does not limit non-waivable statutory consumer rights."
+   },
+   {
+    "type": "heading",
+    "text": "14. PROHIBITED ACTIVITIES"
+   },
+   {
+    "type": "paragraph",
+    "text": "You must not: use the Platform unlawfully; provide false identity, property, payment or verification information; impersonate anyone; access another user’s account or documents without permission; harass, threaten, stalk, discriminate against or defraud another user; publish personal data without lawful authority; scrape, resell or commercially exploit Platform data without permission; interfere with security or attempt unauthorized access; upload malware; disrupt or reverse engineer the Services except where law permits; send spam; or use receipts, agreements or verification records fraudulently."
+   },
+   {
+    "type": "heading",
+    "text": "15. PRIVACY AND PERSONAL DATA"
+   },
+   {
+    "type": "paragraph",
+    "text": "Our collection and use of personal data is described in our Privacy Policy, which forms part of these Terms. You must respect other users’ privacy and handle their information only for legitimate, authorized rental-related purposes. Review the Privacy Policy for details about data collected, owner-tenant sharing, retention, user rights and grievance handling."
+   },
+   {
+    "type": "heading",
+    "text": "16. THIRD-PARTY SERVICES"
+   },
+   {
+    "type": "paragraph",
+    "text": "The Platform may integrate with or link to payment gateways, SMS providers, identity-verification services, maps, cloud services or external websites. Those services may have separate terms and privacy policies. We do not control third-party services and are not responsible for their content, availability, acts or omissions, except where applicable law provides otherwise. A link or integration does not imply endorsement."
+   },
+   {
+    "type": "heading",
+    "text": "17. AVAILABILITY AND CHANGES TO SERVICES"
+   },
+   {
+    "type": "paragraph",
+    "text": "We aim to keep the Platform available but do not guarantee uninterrupted, error-free or continuous access. Services may be unavailable due to maintenance, upgrades, network issues, cyber incidents, third-party outages, force majeure or other reasons."
+   },
+   {
+    "type": "paragraph",
+    "text": "We may add, modify, suspend or discontinue features for operational, security, legal or business reasons. Where required, we will provide notice or obtain consent. Nothing in this clause excludes liability that cannot lawfully be excluded."
+   },
+   {
+    "type": "heading",
+    "text": "18. SUSPENSION AND TERMINATION"
+   },
+   {
+    "type": "paragraph",
+    "text": "You may stop using the Platform and request account deletion through available controls or by contacting us. We may suspend, restrict or terminate access if we reasonably believe you breached these Terms, supplied false information, created a security risk, misused another user’s data, failed to pay applicable fees, or if action is needed to comply with law or protect users or the Platform."
+   },
+   {
+    "type": "paragraph",
+    "text": "Where reasonably practicable, we may notify you and allow an opportunity to address the issue. We may retain records where required or permitted by law for legal claims, accounting, fraud prevention or security. Termination of a Platform account does not automatically cancel or settle obligations under a separate rental agreement."
+   },
+   {
+    "type": "heading",
+    "text": "19. DISCLAIMERS"
+   },
+   {
+    "type": "paragraph",
+    "text": "To the maximum extent permitted by law, the Platform and Services are provided on an “as available” basis. We do not warrant that user-submitted information is accurate, that a listing is genuine or available, that a payment record reflects cleared funds, or that a generated document is legally sufficient for every situation."
+   },
+   {
+    "type": "paragraph",
+    "text": "We do not conduct physical property inspections, guarantee title or ownership, guarantee tenant or owner conduct, guarantee rent collection, resolve landlord-tenant disputes, provide legal or tax advice, or guarantee identity or police verification outcomes unless a specific written service expressly states otherwise."
+   },
+   {
+    "type": "paragraph",
+    "text": "Nothing in these Terms excludes or limits a warranty, right or liability that cannot be excluded or limited under applicable law."
+   },
+   {
+    "type": "heading",
+    "text": "20. LIMITATION OF LIABILITY"
+   },
+   {
+    "type": "paragraph",
+    "text": "To the maximum extent permitted by applicable law, we will not be liable for indirect, incidental, special, punitive or consequential loss, loss of profits, opportunity, goodwill or data arising from use of the Platform. We are not responsible for disputes, non-payment, property condition, personal conduct, misrepresentation or breach of a rental agreement by an Owner, Tenant or other user."
+   },
+   {
+    "type": "paragraph",
+    "text": "To the extent permitted by law, our total aggregate liability arising from the Platform will be limited to fees, if any, paid by you directly to us for the relevant Services during the three months immediately before the event giving rise to the claim. This limit does not apply where liability cannot lawfully be limited, including fraud or wilful misconduct where exclusion is prohibited."
+   },
+   {
+    "type": "heading",
+    "text": "21. INDEMNITY"
+   },
+   {
+    "type": "paragraph",
+    "text": "To the extent permitted by law, you agree to be responsible for and indemnify [Legal Entity Name] and its officers, employees and service providers against third-party claims, losses, liabilities and reasonable costs arising from your unlawful use of the Platform, User Content, breach of these Terms, infringement of another person’s rights or breach of a rental agreement. This does not require you to indemnify us for our own negligence, wilful misconduct or liability that cannot lawfully be transferred."
+   },
+   {
+    "type": "heading",
+    "text": "22. INTELLECTUAL PROPERTY"
+   },
+   {
+    "type": "paragraph",
+    "text": "The Platform’s software, design, branding, logos, text, graphics and other materials (excluding User Content and third-party materials) are owned by or licensed to us and protected by intellectual-property laws. We grant you a limited, revocable, non-exclusive and non-transferable license to use the Platform for its intended purpose in accordance with these Terms."
+   },
+   {
+    "type": "paragraph",
+    "text": "You must not copy, modify, distribute, sell, lease or create derivative works from the Platform except with our written permission or as permitted by law."
+   },
+   {
+    "type": "heading",
+    "text": "23. COMPLAINTS AND OWNER-TENANT DISPUTES"
+   },
+   {
+    "type": "paragraph",
+    "text": "For a complaint about the Platform, contact support or the Grievance Officer using Section 27. Provide your account details, a clear description and relevant reference numbers. We will review and respond in accordance with applicable law."
+   },
+   {
+    "type": "paragraph",
+    "text": "Disputes between an Owner and Tenant—including rent, deposit, possession, repairs, damage, notice periods, eviction, agreement interpretation or payment—are primarily between those parties under their rental agreement and applicable law. The Platform may, at its discretion, provide records or basic support but is not obliged to adjudicate such disputes."
+   },
+   {
+    "type": "heading",
+    "text": "24. FORCE MAJEURE"
+   },
+   {
+    "type": "paragraph",
+    "text": "We are not responsible for delay or failure caused by events beyond our reasonable control, including natural disasters, public-health emergencies, war, civil unrest, government action, power or telecommunications failure, cyberattacks, strikes or third-party infrastructure failures. This clause does not affect rights that cannot be excluded under law."
+   },
+   {
+    "type": "heading",
+    "text": "25. CHANGES TO THESE TERMS"
+   },
+   {
+    "type": "paragraph",
+    "text": "We may revise these Terms from time to time. The updated version will be published on the website or app with a revised “Last Updated” date. Where a change materially affects users or law requires it, we will provide notice and obtain consent where necessary. Continued use after an update takes effect will constitute acceptance only to the extent permitted by applicable law."
+   },
+   {
+    "type": "heading",
+    "text": "26. GOVERNING LAW AND JURISDICTION"
+   },
+   {
+    "type": "paragraph",
+    "text": "These Terms are governed by the laws of India. Subject to mandatory consumer-protection laws and other applicable requirements, courts at Pune, Maharashtra, India will have jurisdiction over disputes arising from these Terms. Nothing here removes a right to approach a forum or authority that has jurisdiction under applicable law."
+   },
+   {
+    "type": "heading",
+    "text": "27. CONTACT AND GRIEVANCE DETAILS"
+   },
+   {
+    "type": "paragraph",
+    "text": "Grievance Officer : - RAHUL MANSING PARDESHI [ PROPRIETOR ]"
+   },
+   {
+    "type": "paragraph",
+    "text": "Legal Entity: CONSULTANCY ALWAYS ON"
+   },
+   {
+    "type": "paragraph",
+    "text": "Email: rahulmpcob@gmail.com"
+   },
+   {
+    "type": "paragraph",
+    "text": "Support Email: assistantpresent@gmail.com"
+   },
+   {
+    "type": "paragraph",
+    "text": "Phone: 9960509713 / 9767754333"
+   },
+   {
+    "type": "paragraph",
+    "text": "Postal Address: SHIVKRUPA COLONY, NEAR SHANKAR MANDIR NADHE NAGAR, KALEWADI, PIMPRI, PUNE – 411017."
+   },
+   {
+    "type": "paragraph",
+    "text": "We will acknowledge and handle complaints within the timelines prescribed by applicable law."
+   },
+   {
+    "type": "heading",
+    "text": "28. SEVERABILITY AND ENTIRE AGREEMENT"
+   },
+   {
+    "type": "paragraph",
+    "text": "If any provision is held invalid or unenforceable, the remaining provisions continue to apply to the extent permitted by law. These Terms, the Privacy Policy and any feature-specific terms presented to you form the agreement between you and us concerning use of the Platform. If feature-specific terms conflict with these Terms, the feature-specific terms prevail for that feature to the extent of the conflict."
+   },
+   {
+    "type": "heading",
+    "text": "29. CUSTOMIZATION AND LEGAL REVIEW"
+   },
+   {
+    "type": "paragraph",
+    "text": "This document is a general template, not legal advice or a certification of compliance. Before publishing, replace every bracketed placeholder; insert the correct legal entity, address, support and grievance contacts; confirm actual app features, charges, payment flows and third-party providers; and remove clauses that do not match your operations."
+   },
+   {
+    "type": "paragraph",
+    "text": "Have the final Terms reviewed by an Indian lawyer familiar with technology platforms, consumer protection, rental and tenancy laws, electronic contracts and data protection. Confirm compliance with applicable central and state laws, including the Consumer Protection Act, 2019, Information Technology Act, 2000, applicable rules, the Digital Personal Data Protection Act, 2023 and the Digital Personal Data Protection Rules, 2025 as and when their provisions apply. State-specific stamp duty, registration and tenancy requirements may also apply to rental agreements."
+   }
+  ]
+ },
+ "privacy-policy": {
+  "title": "PRIVACY POLICY",
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "PROPERTY OWNERS • LANDLORDS • TENANTS • PG / HOSTEL RESIDENTS/SHOPS/OFFICES"
+   },
+   {
+    "type": "heading",
+    "text": "1. INTRODUCTION"
+   },
+   {
+    "type": "paragraph",
+    "text": "Welcome to PROPERTYS AVAILABLE. We provides digital tools and services to help property owners, landlords, tenants and residents manage rental relationships and related records. Depending on the features made available, users may create accounts, add properties and tenants, record rent and deposit details, generate receipts, store or share rental documents, receive reminders and communicate about rental matters."
+   },
+   {
+    "type": "paragraph",
+    "text": "This Privacy Policy explains what personal data we collect, why and how we use it, when it may be shared, how long we retain it, and the choices and rights available to users. It applies when you use our website, Android or iOS application, customer support channels, or related services."
+   },
+   {
+    "type": "paragraph",
+    "text": "Please read this Policy together with the Platform’s Terms and Conditions. If you do not agree with this Policy, do not use features that require personal data. Where consent is the legal basis for processing, you may withdraw it as described below; withdrawal does not affect processing already carried out lawfully before withdrawal."
+   },
+   {
+    "type": "heading",
+    "text": "2. WHO THIS POLICY APPLIES TO"
+   },
+   {
+    "type": "paragraph",
+    "text": "This Policy applies to website visitors, registered property owners and landlords, property managers, tenants, PG or hostel owners and residents, and individuals whose information is submitted to the Platform by an authorized user in connection with a rental relationship."
+   },
+   {
+    "type": "paragraph",
+    "text": "If you provide another person’s information (for example, a tenant’s name or contact details), you must have the authority or lawful basis to do so and must provide that person with any notice required by law. Do not upload another person’s identity documents or sensitive information unless the relevant feature requires it and you are authorized to provide it."
+   },
+   {
+    "type": "heading",
+    "text": "3. PERSONAL DATA WE MAY COLLECT"
+   },
+   {
+    "type": "paragraph",
+    "text": "The information collected depends on the features you use. We aim to collect only information reasonably necessary for the stated purpose."
+   },
+   {
+    "type": "paragraph",
+    "text": "3.1 Account and contact information: name, mobile number, email address, profile image (if provided), account identifier, login and authentication data, language preference and account settings."
+   },
+   {
+    "type": "paragraph",
+    "text": "3.2 Property owner and manager information: contact details, property address, property type, property photographs and descriptions, ownership or authorization information where needed, rent and deposit amounts, availability, and property-management records."
+   },
+   {
+    "type": "paragraph",
+    "text": "3.3 Tenant and resident information: name, contact details, current or permanent address, rental property, tenancy start and end dates, rent amount, deposit details, occupancy or emergency contact details where provided, and rent-related records."
+   },
+   {
+    "type": "paragraph",
+    "text": "3.4 Identity and verification information: the type of identity document, verification status, masked or limited document details, reference numbers and results returned by an authorized verification provider. The exact data depends on the verification method and applicable law. We will not request Aadhaar information unless the relevant service is legally permitted and the required process and consent are in place."
+   },
+   {
+    "type": "paragraph",
+    "text": "3.5 Rental documents: rent agreements, receipts, notices, property-related documents, identity or address documents where lawfully required, and other files that users choose or are authorized to upload."
+   },
+   {
+    "type": "paragraph",
+    "text": "3.6 Payment and transaction information: payment amount, date, transaction or reference ID, payment status, refund status and related accounting records. If payments are handled by a payment gateway, the gateway may collect card, UPI, bank or other payment credentials directly. We do not intend to store complete card credentials or banking passwords on our systems."
+   },
+   {
+    "type": "paragraph",
+    "text": "3.7 Technical and usage information: device type, operating system, app version, browser type, IP address, log data, crash reports, approximate location where permitted, pages or features used, and cookie or similar technology identifiers."
+   },
+   {
+    "type": "paragraph",
+    "text": "3.8 Communications: messages or requests sent to customer support, feedback, complaints, and records needed to respond to you."
+   },
+   {
+    "type": "heading",
+    "text": "4. HOW WE USE PERSONAL DATA"
+   },
+   {
+    "type": "paragraph",
+    "text": "We may use personal data, as permitted by applicable law, to:"
+   },
+   {
+    "type": "bullet",
+    "text": "a) create, authenticate and administer accounts;"
+   },
+   {
+    "type": "bullet",
+    "text": "b) verify mobile numbers and protect account access;"
+   },
+   {
+    "type": "bullet",
+    "text": "c) connect owners, managers and tenants for a rental relationship;"
+   },
+   {
+    "type": "bullet",
+    "text": "d) manage property, tenancy, rent, deposit and payment records;"
+   },
+   {
+    "type": "bullet",
+    "text": "e) generate rent receipts, statements and rental documents;"
+   },
+   {
+    "type": "bullet",
+    "text": "f) send rent reminders, service notices, OTPs and security alerts;"
+   },
+   {
+    "type": "bullet",
+    "text": "g) provide customer support and resolve disputes;"
+   },
+   {
+    "type": "bullet",
+    "text": "h) detect fraud, misuse and security incidents;"
+   },
+   {
+    "type": "bullet",
+    "text": "i) maintain, troubleshoot and improve the Platform;"
+   },
+   {
+    "type": "bullet",
+    "text": "j) comply with legal obligations and respond to lawful requests; and"
+   },
+   {
+    "type": "bullet",
+    "text": "k) enforce our Terms and protect the rights, safety and property of users and the Platform."
+   },
+   {
+    "type": "paragraph",
+    "text": "We will not use personal data for a new purpose that is incompatible with the original purpose unless we provide any notice and obtain any consent or other lawful basis required by applicable law."
+   },
+   {
+    "type": "heading",
+    "text": "5. INFORMATION SHARED BETWEEN OWNERS AND TENANTS"
+   },
+   {
+    "type": "paragraph",
+    "text": "The Platform is designed to support rental administration. When an owner adds a tenant to a property, or a tenant joins or accepts a rental relationship, certain information may be visible to the other party according to the feature, account role, settings and permissions."
+   },
+   {
+    "type": "paragraph",
+    "text": "5.1 Information an owner may see: tenant name and contact details, tenancy dates, rent and deposit details, payment status or records, receipts, and documents the tenant has chosen or authorized to share for the rental relationship."
+   },
+   {
+    "type": "paragraph",
+    "text": "5.2 Information a tenant may see: owner or manager name and contact details, property details, agreed rent and deposit amounts, tenancy dates, payment instructions or status, rent receipts, and rental documents made available to the tenant."
+   },
+   {
+    "type": "paragraph",
+    "text": "5.3 Access controls: we may use role-based permissions and account controls to limit access. Users should review information before uploading or sharing it. Do not use information obtained through the Platform for marketing, harassment, discrimination, public posting or any purpose unrelated to the rental relationship unless separately authorized by law."
+   },
+   {
+    "type": "paragraph",
+    "text": "5.4 User responsibility: the owner and tenant are responsible for the accuracy of information they submit and for their own decisions about entering into, performing or ending a rental arrangement. The Platform is a technology and record-management service; unless expressly stated in a separate written agreement, it is not a party to the rental agreement and does not independently verify every statement made by a user."
+   },
+   {
+    "type": "heading",
+    "text": "6. PAYMENTS, RENT RECORDS AND RECEIPTS"
+   },
+   {
+    "type": "paragraph",
+    "text": "The Platform may allow users to record payments made outside the Platform or, if enabled, initiate payments through a third-party payment provider. A record entered by a user is not necessarily proof that funds have cleared or been received. Users should verify payment status with their bank, payment provider or the other party."
+   },
+   {
+    "type": "paragraph",
+    "text": "Where a payment provider is used, that provider’s terms and privacy notice also apply. We may receive transaction references, amounts, status and limited information needed to reconcile payments, provide support and maintain records. We do not control the independent privacy practices of payment providers."
+   },
+   {
+    "type": "heading",
+    "text": "7. OTP, LOGIN AND ACCOUNT SECURITY"
+   },
+   {
+    "type": "paragraph",
+    "text": "We may send one-time passwords (OTPs) or verification codes by SMS, email or another supported channel to register accounts, verify contact details, authenticate login, recover accounts or confirm sensitive actions. Communication providers may process your mobile number or email address to deliver these messages."
+   },
+   {
+    "type": "paragraph",
+    "text": "Never share an OTP, password or login link with another person, including anyone claiming to be Platform support. Contact us promptly if you suspect unauthorized access. We may temporarily restrict access or request additional verification to protect an account."
+   },
+   {
+    "type": "heading",
+    "text": "8. IDENTITY, ADDRESS AND POLICE VERIFICATION"
+   },
+   {
+    "type": "paragraph",
+    "text": "If the Platform offers identity, address, tenant or police-verification facilitation, the service may be provided by an authorized third party or competent authority. The information required, process, availability and outcome depend on the service provider and applicable law."
+   },
+   {
+    "type": "paragraph",
+    "text": "We will describe the relevant data and purpose at the point of collection and obtain consent or other lawful authorization where required. We do not guarantee that a verification result is complete, current or error-free, and a verification status is not a guarantee of a person’s character, conduct or suitability as a tenant or owner. Users should not treat it as a substitute for their own lawful due diligence."
+   },
+   {
+    "type": "heading",
+    "text": "9. LOCATION, COOKIES AND DEVICE PERMISSIONS"
+   },
+   {
+    "type": "paragraph",
+    "text": "The website may use cookies or similar technologies for login sessions, preferences, security, analytics and website functionality. You can manage cookies through your browser; disabling some cookies may affect features."
+   },
+   {
+    "type": "paragraph",
+    "text": "The mobile app may request permissions such as notifications, camera, photos/files or location when a feature needs them—for example, uploading a document, taking a property photograph, receiving a rent reminder or finding nearby properties. You can manage permissions in your device settings. If location is used, we will use it for the feature and purpose explained at the time of permission request, subject to applicable law."
+   },
+   {
+    "type": "heading",
+    "text": "10. WHEN WE SHARE PERSONAL DATA"
+   },
+   {
+    "type": "paragraph",
+    "text": "We may share limited personal data:"
+   },
+   {
+    "type": "bullet",
+    "text": "a) with the owner, tenant or manager connected to the relevant rental relationship, as described in Section 5;"
+   },
+   {
+    "type": "bullet",
+    "text": "b) with hosting, cloud storage, database, analytics, SMS, email, customer support, payment, identity-verification and security providers who process data for us;"
+   },
+   {
+    "type": "bullet",
+    "text": "c) with professional advisers, auditors or insurers where reasonably necessary;"
+   },
+   {
+    "type": "bullet",
+    "text": "d) with courts, regulators, law-enforcement bodies or government authorities when required by law or valid legal process;"
+   },
+   {
+    "type": "bullet",
+    "text": "e) in connection with a merger, financing, restructuring or transfer of business, subject to appropriate safeguards; or"
+   },
+   {
+    "type": "bullet",
+    "text": "f) with your direction or consent."
+   },
+   {
+    "type": "paragraph",
+    "text": "We do not sell personal data to third parties for their own independent marketing. We require service providers handling data on our behalf to use it only for authorized services and to apply appropriate confidentiality and security measures, subject to contract and law."
+   },
+   {
+    "type": "heading",
+    "text": "11. CROSS-BORDER PROCESSING"
+   },
+   {
+    "type": "paragraph",
+    "text": "Some service providers may store or process information on servers located outside your state or India. Where personal data is transferred outside India, we will comply with applicable Indian data-protection requirements and any restrictions or conditions imposed by the Government of India. We will take reasonable steps to ensure appropriate safeguards are in place."
+   },
+   {
+    "type": "heading",
+    "text": "12. DATA SECURITY"
+   },
+   {
+    "type": "paragraph",
+    "text": "We use reasonable technical and organizational safeguards designed to protect personal data against unauthorized access, disclosure, alteration, loss or misuse. Depending on the service, safeguards may include access controls, role-based permissions, encryption in transit or at rest where appropriate, secure hosting, logging, backups, vulnerability management and restricted staff access."
+   },
+   {
+    "type": "paragraph",
+    "text": "No website, app, network or storage system can be guaranteed to be completely secure. You are responsible for keeping your device and credentials secure. If you believe your account or data has been compromised, contact us using the details in Section 19."
+   },
+   {
+    "type": "heading",
+    "text": "13. DATA RETENTION AND DELETION"
+   },
+   {
+    "type": "paragraph",
+    "text": "We retain personal data only for as long as reasonably necessary for the purpose for which it was collected, to provide the service, resolve disputes, enforce agreements, maintain accounting and transaction records, meet legal obligations, prevent fraud and protect security. Retention periods may differ by data type and legal requirement."
+   },
+   {
+    "type": "paragraph",
+    "text": "You may request deletion of your account or personal data through the app (if that feature is available) or by contacting us. We will assess and respond in accordance with applicable law. Some information may need to be retained where required or permitted by law, for legal claims, security, fraud prevention, financial records or other legitimate purposes. Where appropriate, data may be erased, anonymized or securely restricted instead of immediately deleted from every backup."
+   },
+   {
+    "type": "heading",
+    "text": "14. YOUR RIGHTS AND CHOICES"
+   },
+   {
+    "type": "paragraph",
+    "text": "Subject to applicable law, you may have rights to request access to information about personal data being processed, correction or completion of inaccurate or incomplete data, erasure, withdrawal of consent, and grievance redressal. You may also have the right to nominate another individual to exercise rights in the event of death or incapacity, where provided by applicable law."
+   },
+   {
+    "type": "paragraph",
+    "text": "You can update certain profile information through your account. To exercise a privacy right or withdraw consent, contact us using Section 19 and specify the account and request. We may need to verify your identity before acting. Withdrawal of consent does not affect processing already carried out lawfully before withdrawal and may mean that some features can no longer be provided."
+   },
+   {
+    "type": "heading",
+    "text": "15. CHILDREN'S PERSONAL DATA"
+   },
+   {
+    "type": "paragraph",
+    "text": "The Platform is intended for people who are legally able to use the relevant rental services. We do not knowingly seek to collect children’s personal data except where permitted by law and with any verifiable parental or guardian consent required. If you believe a child’s personal data has been provided to us improperly, contact us so we can review and take appropriate action."
+   },
+   {
+    "type": "heading",
+    "text": "16. DATA BREACHES"
+   },
+   {
+    "type": "paragraph",
+    "text": "If a personal data breach occurs, we will take steps to contain, investigate and mitigate it, and provide notices to affected individuals and authorities where and when required by applicable law. We may also take steps to secure accounts, reset credentials or temporarily suspend affected features."
+   },
+   {
+    "type": "heading",
+    "text": "17. THIRD-PARTY LINKS AND SERVICES"
+   },
+   {
+    "type": "paragraph",
+    "text": "The Platform may link to third-party websites, applications or services. Their privacy practices are governed by their own policies, not this Policy. We encourage you to review those policies before providing information to them. A link does not mean that we endorse or control the third party."
+   },
+   {
+    "type": "heading",
+    "text": "18. CHANGES TO THIS POLICY"
+   },
+   {
+    "type": "paragraph",
+    "text": "We may update this Policy to reflect changes in our services, data practices, technology or applicable law. We will publish the updated version with a revised “Last Updated” date and provide additional notice or obtain consent where required."
+   },
+   {
+    "type": "heading",
+    "text": "19. GRIEVANCE OFFICER AND CONTACT DETAILS"
+   },
+   {
+    "type": "paragraph",
+    "text": "For privacy questions, requests or complaints, contact:"
+   },
+   {
+    "type": "paragraph",
+    "text": "Grievance Officer : - RAHUL MANSING PARDESHI [ PROPRIETOR ]"
+   },
+   {
+    "type": "paragraph",
+    "text": "Legal Entity: CONSULTANCY ALWAYS ON"
+   },
+   {
+    "type": "paragraph",
+    "text": "Email: rahulmpcob@gmail.com"
+   },
+   {
+    "type": "paragraph",
+    "text": "Support Email: assistantpresent@gmail.com"
+   },
+   {
+    "type": "paragraph",
+    "text": "Phone: 9960509713 / 9767754333"
+   },
+   {
+    "type": "paragraph",
+    "text": "Postal Address: SHIVKRUPA COLONY, NEAR SHANKAR MANDIR NADHE NAGAR, KALEWADI, PIMPRI, PUNE – 411017."
+   },
+   {
+    "type": "paragraph",
+    "text": "We will acknowledge and handle complaints within the timelines prescribed by applicable law."
+   },
+   {
+    "type": "heading",
+    "text": "20. GOVERNING LAW"
+   },
+   {
+    "type": "paragraph",
+    "text": "This Policy is intended for use in India and is governed by the laws of India, including applicable data-protection and information-technology laws. Any dispute will be subject to the jurisdiction of competent courts, subject to applicable law and any valid agreement between the parties."
+   },
+   {
+    "type": "heading",
+    "text": "21. IMPORTANT USER NOTICE"
+   },
+   {
+    "type": "paragraph",
+    "text": "The Platform helps users maintain rental information and records. Unless a separate written service expressly states otherwise, we do not act as a real-estate agent, landlord, tenant, legal adviser, police authority, identity-certification authority or guarantor of a user’s conduct. Users should independently verify property ownership or authority, inspect premises, confirm payment and agreement terms, and obtain professional advice where necessary."
+   },
+   {
+    "type": "paragraph",
+    "text": "The privacy and security of information also depend on users sharing accurate information, using the Platform responsibly and restricting access to their accounts and documents."
+   },
+   {
+    "type": "heading",
+    "text": "22. LEGAL AND IMPLEMENTATION NOTE"
+   },
+   {
+    "type": "paragraph",
+    "text": "This document is a general drafting template, not legal advice and not a certification that the Platform complies with every law. Before publication, replace all bracketed placeholders, remove features that your app does not offer, accurately describe your actual data flows, and have the final policy reviewed by an Indian lawyer or privacy professional."
+   },
+   {
+    "type": "paragraph",
+    "text": "In particular, confirm your compliance obligations and commencement dates under the Digital Personal Data Protection Act, 2023 and the Digital Personal Data Protection Rules, 2025, as well as applicable provisions of the Information Technology Act, 2000 and Aadhaar Act, 2016 if Aadhaar-related services are offered. Do not claim to provide Aadhaar or police verification unless the service is lawfully available through an authorized route."
+   }
+  ]
+ },
+ "refund-policy": {
+  "title": "REFUND AND CANCELLATION POLICY",
+  "blocks": [
+   {
+    "type": "paragraph",
+    "text": "For the Property Owner and Tenant Management App / Website"
+   },
+   {
+    "type": "paragraph",
+    "text": "Effective date: 16 November 2026"
+   },
+   {
+    "type": "heading",
+    "text": "1. Introduction"
+   },
+   {
+    "type": "paragraph",
+    "text": "This Refund and Cancellation Policy (“Policy”) applies to subscriptions purchased for [APP – PROPERTYS AVAILABLE / WEBSITE NAME – WWW.PROPERTYSAVAILABLE.COM ] (“Platform”), operated by [M/s. CONSULTANCY ALWAYS ON], having its principal place of business at [713/3, SHIVKRUPA COLONY, NADHE NAGAR, KALEWADI, PIMPRI, PUNE - 411017] (“Company”, “we”, “us” or “our”). The Platform may provide property-owner, tenant, hostel, paying guest (PG), flat, shop, hotel and office rental-management features, including account management, records, notifications and other features described in the Platform."
+   },
+   {
+    "type": "paragraph",
+    "text": "By purchasing or activating a paid subscription, you (“user”, “you” or “subscriber”) acknowledge that you have read this Policy and agree to its terms, subject always to applicable law and the payment platform’s rules."
+   },
+   {
+    "type": "heading",
+    "text": "2. Subscription-based service"
+   },
+   {
+    "type": "paragraph",
+    "text": "The Platform is offered on a subscription basis. Access to paid features is provided for the subscription period and plan displayed to you at the time of purchase. The applicable price, taxes, billing period, renewal terms, features and any limitations will be shown before you confirm payment."
+   },
+   {
+    "type": "paragraph",
+    "text": "A subscription is linked to the user account for which it was purchased and is subject to the plan conditions displayed at checkout. Unless expressly stated otherwise, subscription fees are charged in advance for the selected subscription period."
+   },
+   {
+    "type": "heading",
+    "text": "3. General no-refund policy"
+   },
+   {
+    "type": "paragraph",
+    "text": "Except where a refund is required by applicable law, the relevant app-store or payment-provider rules, or is approved by us under this Policy, subscription fees are non-refundable once the payment has been successfully processed and the subscription has been activated."
+   },
+   {
+    "type": "paragraph",
+    "text": "To the extent permitted by law, we do not provide full or partial refunds, credits, cash adjustments or extensions for:"
+   },
+   {
+    "type": "bullet",
+    "text": "A user’s decision not to use the Platform or to stop using it after purchasing a subscription."
+   },
+   {
+    "type": "bullet",
+    "text": "Unused days, weeks or months remaining in an active subscription."
+   },
+   {
+    "type": "bullet",
+    "text": "Failure to log in, use a feature, add property or tenant information, or otherwise make use of the subscription."
+   },
+   {
+    "type": "bullet",
+    "text": "A user’s change of mind, business decision, change in requirements or failure to achieve a particular business result."
+   },
+   {
+    "type": "bullet",
+    "text": "Suspension or restriction arising from the user’s breach of the Terms and Conditions, misuse, fraudulent activity or violation of applicable law."
+   },
+   {
+    "type": "bullet",
+    "text": "A request to downgrade, change or discontinue a plan after the current subscription period has started, except where required by law or expressly approved by us."
+   },
+   {
+    "type": "paragraph",
+    "text": "This section does not remove any rights that cannot legally be excluded. It does not prevent Google Play, another app store, a payment provider, a bank or a competent authority from processing a refund where their rules or applicable law require it."
+   },
+   {
+    "type": "heading",
+    "text": "4. Subscription cancellation and renewal"
+   },
+   {
+    "type": "paragraph",
+    "text": "You may request cancellation at any time using the cancellation method applicable to the way you purchased the subscription. Cancellation generally stops the next renewal; it does not, by itself, refund the current subscription payment."
+   },
+   {
+    "type": "paragraph",
+    "text": "Unless the checkout page states otherwise, after a valid cancellation your paid access will normally continue until the end of the already-paid subscription period. At the end of that period, paid features may be disabled or your account may move to a free or limited-access plan, if one is available."
+   },
+   {
+    "type": "paragraph",
+    "text": "If your subscription renews automatically, you are responsible for cancelling it before the next renewal date if you do not want to be charged for the next period. Please allow reasonable time for the cancellation to be processed. We recommend checking the subscription status after cancellation."
+   },
+   {
+    "type": "paragraph",
+    "text": "We will display renewal information before purchase and provide or identify a method to manage or cancel the subscription. We will not describe cancellation as a refund."
+   },
+   {
+    "type": "heading",
+    "text": "5. Subscriptions purchased on our website or through another payment provider"
+   },
+   {
+    "type": "paragraph",
+    "text": "If you purchase directly through our website or a payment provider other than Google Play, use the cancellation option in your account (if available) or contact us at [assistantpresent@gmail.com] with your registered mobile number/email address and transaction reference. We will confirm the cancellation request and explain when future billing will stop."
+   },
+   {
+    "type": "paragraph",
+    "text": "A cancellation request submitted after a renewal has already been successfully charged will generally apply to the next billing period and will not automatically reverse the completed charge, subject to applicable law and the exceptions in this Policy."
+   },
+   {
+    "type": "heading",
+    "text": "6. Exceptions and payment issues"
+   },
+   {
+    "type": "paragraph",
+    "text": "Although our general policy is that subscription fees are non-refundable, please contact us promptly if any of the following occurs:"
+   },
+   {
+    "type": "bullet",
+    "text": "You were charged more than once for the same subscription period."
+   },
+   {
+    "type": "bullet",
+    "text": "A payment was debited but the subscription was not activated and the payment was not automatically reversed."
+   },
+   {
+    "type": "bullet",
+    "text": "The transaction appears unauthorised or was made without your permission."
+   },
+   {
+    "type": "bullet",
+    "text": "The amount charged differs from the amount displayed and accepted at checkout."
+   },
+   {
+    "type": "bullet",
+    "text": "A material technical issue on our side prevents access to the paid service for a significant period and we cannot reasonably resolve it."
+   },
+   {
+    "type": "bullet",
+    "text": "A refund, reversal or other remedy is required under applicable law, a binding order, or the rules of Google Play or the payment provider."
+   },
+   {
+    "type": "paragraph",
+    "text": "We will review such reports and may ask for reasonable supporting information, such as a transaction ID, order number, payment receipt, date of payment and registered account details. If a refund or correction is approved, it will generally be processed through the original payment method or the relevant app-store/payment provider, where possible. Processing times are controlled by the payment provider or bank."
+   },
+   {
+    "type": "heading",
+    "text": "7. Failed, pending, reversed or disputed payments"
+   },
+   {
+    "type": "paragraph",
+    "text": "A payment marked pending, failed or declined does not by itself create an active paid subscription. If money is debited for a failed transaction, the bank or payment provider may reverse it according to its process and timelines. Please contact your bank/payment provider first where the transaction is pending or awaiting reversal, and contact us if the issue remains unresolved."
+   },
+   {
+    "type": "paragraph",
+    "text": "If you dispute a payment with your bank or payment provider, we may provide transaction and subscription records to that provider for investigation. We may temporarily restrict access where we reasonably believe a payment is fraudulent, reversed or subject to a chargeback, while the matter is reviewed."
+   },
+   {
+    "type": "heading",
+    "text": "8. Taxes, invoices and charges"
+   },
+   {
+    "type": "paragraph",
+    "text": "Prices and applicable taxes will be shown at checkout or on the relevant invoice/receipt. Where applicable, taxes may be included in the displayed price or added separately as required by law. Any refund approved will be calculated and processed in accordance with applicable tax and payment-provider rules."
+   },
+   {
+    "type": "heading",
+    "text": "9. Changes to subscription plans or pricing"
+   },
+   {
+    "type": "paragraph",
+    "text": "We may introduce, modify, discontinue or update subscription plans, features or prices prospectively. Any change to a recurring subscription price or material renewal term will be communicated as required by applicable law and the relevant app-store/payment-provider rules. A price change will not be applied retroactively to a completed subscription period."
+   },
+   {
+    "type": "paragraph",
+    "text": "If you do not agree to a future price or plan change, you may cancel before the change takes effect or before the next renewal, as applicable."
+   },
+   {
+    "type": "heading",
+    "text": "10. Account suspension or termination"
+   },
+   {
+    "type": "paragraph",
+    "text": "We may suspend or terminate access in accordance with our Terms and Conditions where there is misuse, fraud, unlawful activity, security risk, non-payment or a material breach. To the extent permitted by law, termination or suspension resulting from a user’s breach does not create an entitlement to a refund for a subscription period already commenced. This does not affect any non-excludable legal rights."
+   },
+   {
+    "type": "heading",
+    "text": "11. No transfer or exchange"
+   },
+   {
+    "type": "paragraph",
+    "text": "Unless we expressly permit it in writing, subscriptions are non-transferable and cannot be exchanged for cash, transferred to another user, or converted into a different plan after activation. Any account transfer or plan change request will be considered under the applicable plan rules and technical availability."
+   },
+   {
+    "type": "heading",
+    "text": "12. How to request help or report a billing issue"
+   },
+   {
+    "type": "paragraph",
+    "text": "For a billing, cancellation or refund-related query, contact:"
+   },
+   {
+    "type": "paragraph",
+    "text": "Business / App Name: PROPERTYS AVAILABLE"
+   },
+   {
+    "type": "paragraph",
+    "text": "WEBSITE NAME – WWW.PROPERTYSAVAILABLE.COM"
+   },
+   {
+    "type": "paragraph",
+    "text": "Legal business name: CONSULTANCY ALWAYS ON"
+   },
+   {
+    "type": "paragraph",
+    "text": "Support Email: assistantpresent@gmail.com"
+   },
+   {
+    "type": "paragraph",
+    "text": "Contact Number: 9767754333 / 9960509713"
+   },
+   {
+    "type": "paragraph",
+    "text": "Business Address: 713/, SHIVKRUPA COLONY, NADHENAGAR, KALEWADI, PIMPRI, PUNE 411017."
+   },
+   {
+    "type": "paragraph",
+    "text": "Support Hours: 9.00 AM TO 9.00 PM"
+   },
+   {
+    "type": "heading",
+    "text": "13. Grievance handling"
+   },
+   {
+    "type": "paragraph",
+    "text": "We will acknowledge and review complaints within a reasonable time and endeavour to resolve them promptly. If you are not satisfied with the response, you may write to our Grievance Officer / Customer Support contact below:"
+   },
+   {
+    "type": "paragraph",
+    "text": "Grievance Officer: RAHUL MANSING PARDESHI - PROPRIETOR"
+   },
+   {
+    "type": "paragraph",
+    "text": "Email: RAHULMPCOB@GMAIL.COM"
+   },
+   {
+    "type": "paragraph",
+    "text": "Postal Address: 713/, SHIVKRUPA COLONY, NADHENAGAR, KALEWADI, PIMPRI, PUNE – 411017"
+   },
+   {
+    "type": "heading",
+    "text": "14. Legal rights and applicable law"
+   },
+   {
+    "type": "paragraph",
+    "text": "Nothing in this Policy is intended to exclude, restrict or waive a right or remedy that cannot lawfully be excluded or restricted under applicable law, including applicable Indian consumer-protection law. If any provision of this Policy conflicts with a mandatory legal requirement or binding app-store/payment-provider rule, that requirement or rule will prevail to the extent of the conflict."
+   },
+   {
+    "type": "paragraph",
+    "text": "This Policy will be interpreted in accordance with the laws of India, subject to mandatory consumer rights and the jurisdiction of competent courts or authorities."
+   },
+   {
+    "type": "heading",
+    "text": "15. Changes to this Policy"
+   },
+   {
+    "type": "paragraph",
+    "text": "We may update this Policy from time to time to reflect changes in our services, payment arrangements, legal requirements or platform rules. The updated version will be posted on our website and/or within the app with a revised effective date. Where required, we will provide notice or obtain consent before the change applies."
+   },
+   {
+    "type": "heading",
+    "text": "16. Short notice for checkout / subscription screen"
+   },
+   {
+    "type": "paragraph",
+    "text": "Subscription fees are generally non-refundable once payment is successfully processed and the subscription is activated, except where a refund is required by applicable law or the relevant app-store/payment-provider rules. You may cancel to stop future renewals. Cancellation does not normally refund the current billing period, and paid access generally continues until that period ends. Please review our full Refund and Cancellation Policy before purchasing."
+   }
+  ]
+ },
+ "contact-us": {
+  "title": "Contact Us",
+  "intro": "For support, billing, cancellation, refund or privacy queries, contact:",
+  "details": [
+   {
+    "label": "Business / App Name",
+    "value": "PROPERTYS AVAILABLE"
+   },
+   {
+    "label": "Website",
+    "value": "www.propertysavailable.com"
+   },
+   {
+    "label": "Legal business name",
+    "value": "CONSULTANCY ALWAYS ON"
+   },
+   {
+    "label": "Support Email",
+    "value": "assistantpresent@gmail.com"
+   },
+   {
+    "label": "Contact Number",
+    "value": "9767754333  /  9960509713"
+   },
+   {
+    "label": "Business Address",
+    "value": "713/, SHIVKRUPA COLONY, NADHENAGAR, KALEWADI, PIMPRI, PUNE   411017."
+   },
+   {
+    "label": "Support Hours",
+    "value": "9.00 AM TO 9.00 PM"
+   }
+  ],
+  "grievance_title": "Grievance Officer",
+  "grievance": [
+   {
+    "label": "Grievance Officer",
+    "value": "RAHUL MANSING PARDESHI  -  PROPRIETOR"
+   },
+   {
+    "label": "Email",
+    "value": "RAHULMPCOB@GMAIL.COM"
+   },
+   {
+    "label": "Phone",
+    "value": "9960509713  /  9767754333"
+   },
+   {
+    "label": "Postal Address",
+    "value": "713/, SHIVKRUPA COLONY, NADHENAGAR, KALEWADI, PIMPRI, PUNE – 411017"
+   }
+  ]
+ }
+}
