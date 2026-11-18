@@ -1,4 +1,7 @@
-name: pa-admin
+name: propertysavailable
+
+# From /opt/propertysavailable/deploy:  docker compose up -d --build
+# Starts MongoDB, the admin backend API, the website content service and Nginx (website + admin panel).
 
 services:
   mongo:
@@ -13,7 +16,7 @@ services:
       retries: 10
 
   backend:
-    image: ${BACKEND_IMAGE:-pa-admin-backend:latest}
+    image: ${BACKEND_IMAGE:-pa-backend:latest}
     build:
       context: ..
       dockerfile: deploy/Dockerfile
@@ -26,17 +29,32 @@ services:
     expose:
       - "8001"
 
+  webcontent:
+    image: ${WEBCONTENT_IMAGE:-pa-webcontent:latest}
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: webcontent
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      mongo:
+        condition: service_healthy
+    expose:
+      - "8002"
+
   web:
-    image: ${WEB_IMAGE:-pa-admin-web:latest}
+    image: ${WEB_IMAGE:-pa-web:latest}
     build:
       context: ..
       dockerfile: deploy/Dockerfile
       target: web
       args:
-        REACT_APP_BACKEND_URL: ${PUBLIC_BASE_URL:-https://propertysavailable.com}
+        REACT_APP_BACKEND_URL: ${ADMIN_BASE_URL:-https://admin.propertysavailable.com}
     restart: unless-stopped
     depends_on:
       - backend
+      - webcontent
     ports:
       - "80:80"
       - "443:443"

@@ -84,3 +84,15 @@ Logo (image is inside this Word document; extract it): https://customer-assets-m
 From /Admin remove "Fees" from setting. of /admin
 and add option "Agreement Fees" to change fees for agreement based on duration. example: 30 days price will be diffrent, 90 days will be diffrent. and it will reflect in mobile apk."
 Notes: the old Fees tab also held the owner platform subscription fee (₹99/365 days) and tenant fees; those must stay editable somewhere, not be lost. Past agreement fees and payments must not change. "Reflect in mobile apk": the app reads Firestore, so the duration fees must be available to the mobile app without an APK update (and via the existing /api/app fee endpoints).
+
+---
+# Round 9: Deployment routing (user's words)
+"Only do this task. Do not continue any pending work. Stop and report when done.
+Make sure frontend/yarn.lock exists and is not ignored by .gitignore. If it is missing, run yarn install inside the frontend folder to generate it.
+Set up Nginx configuration so that:
+propertysavailable.com and www.propertysavailable.com serve the main website (frontend)
+admin.propertysavailable.com serves the admin panel. Both domains point to the same VPS IP 201.18.206.131. Both should run from the same project and Docker deployment.
+Update docker-compose.yml and all deploy scripts so a single docker compose up -d --build from the /opt/propertysavailable/deploy folder starts everything — backend API, main website frontend, admin panel, and MongoDB — with the Nginx routing above.
+Save everything to GitHub after all changes are made.
+Do not make any changes to features, data, or existing functionality. Only fix deployment, yarn.lock, and Nginx routing."
+Notes: yarn.lock already exists and is not ignored (checked). Include the web content service (/webcontent editor and its API) in the deployment so the website and editor work. Saving to GitHub is done by the user via the "Save to GitHub" button; the builder cannot push.
