@@ -1,21 +1,16 @@
 #!/usr/bin/env bash
-# Propertys Available: deploy on Ubuntu 22.04 VPS (201.18.206.131). Run as root from /opt/propertysavailable/deploy:
-#   sudo CERT_EMAIL=you@example.com ./deploy.sh
-# Installs Docker, runs `docker compose up -d --build`, gets one Let's Encrypt certificate for
-# propertysavailable.com, www.propertysavailable.com and admin.propertysavailable.com, and sets up renewal.
+# Propertys Available on an aaPanel VPS (201.18.206.131). Run as root from /opt/propertysavailable/deploy:
+#   sudo ./deploy.sh
+# Installs Docker if missing and runs `docker compose up -d --build`. HTTPS and domains are handled by aaPanel's Nginx.
 set -euo pipefail
-
-CERT_EMAIL="${CERT_EMAIL:-}"
-DOMAIN=propertysavailable.com
-NAMES=("$DOMAIN" "www.$DOMAIN" "admin.$DOMAIN")
 cd "$(dirname "$0")"
 
 [ "$(id -u)" -eq 0 ] || { echo "Run as root (sudo ./deploy.sh)"; exit 1; }
 [ -f .env ] || { echo "Missing deploy/.env: copy .env.example to .env and fill it in"; exit 1; }
 grep -qE '^(JWT_SECRET|AADHAAR_ENC_KEY|ADMIN_PASSWORD|APP_API_KEY|WEB_JWT_SECRET|WEB_EDITOR_PASSWORD)=("")?$' .env && { echo "Fill in all secrets in .env first"; exit 1; }
 
-echo "==> Installing Docker Engine + Compose plugin"
 if ! command -v docker >/dev/null 2>&1; then
+  echo "==> Installing Docker Engine + Compose plugin"
   apt-get update -y
   apt-get install -y ca-certificates curl gnupg
   install -m 0755 -d /etc/apt/keyrings
@@ -28,28 +23,18 @@ if ! command -v docker >/dev/null 2>&1; then
   systemctl enable --now docker
 fi
 
-echo "==> Building and starting all containers (mongo, backend, webcontent, web)"
-mkdir -p /var/www/certbot /etc/letsencrypt
+echo "==> Building and starting mongo, backend, webcontent, website, admin"
 docker compose up -d --build
 docker compose ps
 
-echo "==> TLS certificate for ${NAMES[*]}"
-if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
-  [ -n "$CERT_EMAIL" ] || { echo "Site is running with a temporary certificate. Re-run with CERT_EMAIL=you@example.com to get the real one."; exit 1; }
-  ARGS=(); for n in "${NAMES[@]}"; do ARGS+=(-d "$n"); done
-  docker run --rm -v /etc/letsencrypt:/etc/letsencrypt -v /var/www/certbot:/var/www/certbot certbot/certbot certonly \
-    --webroot -w /var/www/certbot --cert-name "$DOMAIN" --non-interactive --agree-tos -m "$CERT_EMAIL" "${ARGS[@]}"
-  docker compose restart web
-fi
-
-echo "==> Certificate auto-renewal (daily)"
-cat > /etc/cron.d/propertysavailable-certbot <<EOF
-17 3 * * * root docker run --rm -v /etc/letsencrypt:/etc/letsencrypt -v /var/www/certbot:/var/www/certbot certbot/certbot renew --webroot -w /var/www/certbot --quiet && docker compose -f $(pwd)/docker-compose.yml restart web
-EOF
-
-echo "==> Health check"
-sleep 5
-curl -fsS "https://$DOMAIN/api/" >/dev/null && echo "API ok"
-curl -fsS "https://$DOMAIN/webcontent-api/" >/dev/null && echo "Website content service ok"
-curl -fsS -o /dev/null "https://$DOMAIN/" && echo "Website ok: https://$DOMAIN/"
-curl -fsS -o /dev/null "https://admin.$DOMAIN/admin/" && echo "Admin panel ok: https://admin.$DOMAIN/"
+echo "==> Health check (waiting for services)"
+check() {
+  for _ in $(seq 1 30); do curl -fsS -o /dev/null "$2" && { echo "  ok  $1  $2"; return 0; }; sleep 2; done
+  echo "  FAIL $1  $2"; return 1
+}
+ok=0
+check "Backend API" "http://127.0.0.1:5000/api/" || ok=1
+check "Website content service" "http://127.0.0.1:5001/webcontent-api/" || ok=1
+check "Main website" "http://127.0.0.1:3000/" || ok=1
+check "Admin panel" "http://127.0.0.1:3001/admin/" || ok=1
+[ "$ok" -eq 0 ] && echo "All services running. Now set up the reverse proxies in aaPanel (see README.md)." || { echo "Some services failed: docker compose logs <service>"; exit 1; }

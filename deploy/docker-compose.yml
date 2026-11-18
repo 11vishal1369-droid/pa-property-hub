@@ -1,7 +1,9 @@
 name: propertysavailable
 
 # From /opt/propertysavailable/deploy:  docker compose up -d --build
-# Starts MongoDB, the admin backend API, the website content service and Nginx (website + admin panel).
+# Starts MongoDB (internal only), the backend API, the website content service, the main website and the admin panel.
+# aaPanel's Nginx on the host does HTTPS and proxies to the ports below (see README.md).
+# Ports bind to 127.0.0.1 by default so only the host's Nginx can reach them; set BIND_IP=0.0.0.0 in .env to open them.
 
 services:
   mongo:
@@ -26,8 +28,8 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
-    expose:
-      - "8001"
+    ports:
+      - "${BIND_IP:-127.0.0.1}:5000:8001"
 
   webcontent:
     image: ${WEBCONTENT_IMAGE:-pa-webcontent:latest}
@@ -40,27 +42,34 @@ services:
     depends_on:
       mongo:
         condition: service_healthy
-    expose:
-      - "8002"
+    ports:
+      - "${BIND_IP:-127.0.0.1}:5001:8002"
 
-  web:
-    image: ${WEB_IMAGE:-pa-web:latest}
+  website:
+    image: ${FRONTEND_IMAGE:-pa-frontend:latest}
     build:
       context: ..
       dockerfile: deploy/Dockerfile
-      target: web
+      target: frontend
       args:
         REACT_APP_BACKEND_URL: ${ADMIN_BASE_URL:-https://admin.propertysavailable.com}
     restart: unless-stopped
-    depends_on:
-      - backend
-      - webcontent
+    command: ["serve", "--no-clipboard", "--config", "/srv/website.json", "-l", "tcp://0.0.0.0:3000"]
     ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - /var/www/certbot:/var/www/certbot:ro
+      - "${BIND_IP:-127.0.0.1}:3000:3000"
+
+  admin:
+    image: ${FRONTEND_IMAGE:-pa-frontend:latest}
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      target: frontend
+      args:
+        REACT_APP_BACKEND_URL: ${ADMIN_BASE_URL:-https://admin.propertysavailable.com}
+    restart: unless-stopped
+    command: ["serve", "--no-clipboard", "--config", "/srv/admin.json", "-l", "tcp://0.0.0.0:3001"]
+    ports:
+      - "${BIND_IP:-127.0.0.1}:3001:3001"
 
 volumes:
   mongo-data:

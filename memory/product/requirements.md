@@ -96,3 +96,18 @@ Update docker-compose.yml and all deploy scripts so a single docker compose up -
 Save everything to GitHub after all changes are made.
 Do not make any changes to features, data, or existing functionality. Only fix deployment, yarn.lock, and Nginx routing."
 Notes: yarn.lock already exists and is not ignored (checked). Include the web content service (/webcontent editor and its API) in the deployment so the website and editor work. Saving to GitHub is done by the user via the "Save to GitHub" button; the builder cannot push.
+
+---
+# Round 10: aaPanel deployment (user's words)
+"Only do this task. Do not continue any pending work. Stop and report when done.
+The server uses aaPanel which already runs Nginx on the host. Remove the Nginx container from docker-compose.yml entirely. Instead, expose the following ports directly so aaPanel's Nginx can proxy to them:
+Main website frontend: port 3000
+Admin panel: port 3001
+Backend API: port 5000
+MongoDB: keep internal only, do not expose outside Docker
+Update docker-compose.yml and deploy.sh so the single command docker compose up -d --build still starts everything (without Nginx). Remove any Nginx config files that were added for Docker.
+Also provide a plain text summary of the reverse proxy settings I need to enter in aaPanel for both domains:
+propertysavailable.com → which port and path
+admin.propertysavailable.com → which port and path
+Do not change any features, data, or app functionality. Only update the deployment setup."
+Notes: the web content service (/webcontent-api) must still be reachable; include its port and proxy rule in the aaPanel summary. Certificates are handled by aaPanel now. deploy.sh should not install or require host Nginx/certbot.

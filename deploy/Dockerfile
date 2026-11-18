@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 # Build context: repository root.
-# Targets: "web" (Nginx + website + admin UI), "backend" (admin FastAPI /api), "webcontent" (website content service).
+# Targets: "frontend" (website + admin panel static server), "backend" (admin FastAPI /api), "webcontent" (website content service).
+# Host Nginx (aaPanel) proxies to these containers; there is no Nginx container.
 
 FROM node:20-bookworm-slim AS frontend-build
 WORKDIR /src/frontend
@@ -14,13 +15,15 @@ RUN yarn install --frozen-lockfile --network-timeout 600000
 COPY frontend/ ./
 RUN rm -f .env src/setupProxy.js && yarn build
 
-FROM nginx:1.27-alpine AS web
-RUN apk add --no-cache openssl && rm -f /etc/nginx/conf.d/default.conf && mkdir -p /var/www/certbot /etc/nginx/certs
-COPY deploy/nginx/propertysavailable.conf deploy/nginx/common.inc deploy/nginx/proxy.inc /etc/nginx/conf.d/
-COPY deploy/nginx/20-certs.sh /docker-entrypoint.d/20-certs.sh
-RUN chmod +x /docker-entrypoint.d/20-certs.sh
-COPY --from=frontend-build /src/frontend/build /usr/share/nginx/html
-EXPOSE 80 443
+FROM node:20-alpine AS frontend
+RUN npm install -g serve@14.2.4 && adduser -S -u 10001 app
+WORKDIR /srv
+COPY --from=frontend-build /src/frontend/build ./build
+COPY deploy/serve/website.json ./website.json
+COPY deploy/serve/admin.json ./admin.json
+USER app
+EXPOSE 3000 3001
+# Command (port + config) is set per service in docker-compose.yml.
 
 FROM python:3.11-slim AS python-base
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
